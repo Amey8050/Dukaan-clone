@@ -1,0 +1,21 @@
+.landing-page {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure all landing page sections are responsive */
+@media (max-width: 480px) {
+  .landing-page {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+

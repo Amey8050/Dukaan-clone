@@ -1,0 +1,303 @@
+.confirmation-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-xl);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.confirmation-card {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-5xl);
+  max-width: 800px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  border: 1px solid var(--color-border-light);
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--color-success) 0%, #20c997 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-6xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 auto var(--spacing-xl);
+}
+
+.confirmation-card h1 {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.order-number {
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.confirmation-message {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  margin-bottom: var(--spacing-5xl);
+}
+
+.order-details {
+  text-align: left;
+  margin-top: var(--spacing-5xl);
+}
+
+.detail-section {
+  margin-bottom: var(--spacing-3xl);
+  padding-bottom: var(--spacing-3xl);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.detail-section:last-of-type {
+  border-bottom: none;
+}
+
+.detail-section h3 {
+  margin: 0 0 var(--spacing-xl) 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.order-items-list {
+  margin-bottom: var(--spacing-xl);
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.order-item-row:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.item-name {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.item-quantity {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.item-total {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.order-totals {
+  margin-top: var(--spacing-xl);
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.total-row.discount {
+  color: var(--color-success);
+}
+
+.total-row.final-total {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 2px solid var(--color-border-light);
+}
+
+.address-block {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}
+
+.address-block p {
+  margin: var(--spacing-xs) 0;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.status-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.status-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.status-value {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: capitalize;
+}
+
+.status-value.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-value.processing {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.status-value.shipped {
+  background: #d1ecf1;
+  color: #055160;
+}
+
+.status-value.delivered {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-value.paid {
+  background: #d4edda;
+  color: #155724;
+}
+
+.confirmation-actions {
+  margin-top: var(--spacing-5xl);
+  padding-top: var(--spacing-3xl);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.view-orders-button {
+  padding: var(--spacing-md) var(--spacing-3xl);
+  background: var(--color-primary-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-primary);
+}
+
+.view-orders-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary-hover);
+}
+
+.loading,
+.error-message {
+  text-align: center;
+  padding: var(--spacing-5xl);
+  color: var(--color-text-secondary);
+}
+
+.error-message {
+  color: var(--color-danger);
+  background: #fee;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Back button styles are now in BackButton.css */
+
+@media (max-width: 768px) {
+  .confirmation-container {
+    padding: var(--spacing-md);
+    align-items: flex-start;
+  }
+
+  .confirmation-card {
+    padding: var(--spacing-3xl) var(--spacing-xl);
+  }
+
+  .confirmation-card h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .success-icon {
+    width: 60px;
+    height: 60px;
+    font-size: var(--font-size-5xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .confirmation-container {
+    padding: var(--spacing-sm);
+  }
+
+  .confirmation-card {
+    padding: var(--spacing-xl) var(--spacing-lg);
+  }
+
+  .confirmation-card h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .success-icon {
+    width: 50px;
+    height: 50px;
+    font-size: var(--font-size-4xl);
+  }
+
+  .order-number {
+    font-size: var(--font-size-base);
+  }
+
+  .confirmation-message {
+    font-size: var(--font-size-sm);
+  }
+
+  .detail-section h3 {
+    font-size: var(--font-size-base);
+  }
+
+  .view-orders-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+}
