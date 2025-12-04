@@ -6,7 +6,7 @@ import '../components/BackButton.css';
 import './OrderConfirmation.css';
 
 const OrderConfirmation = () => {
-  const { storeId, orderId } = useParams();
+  const { storeId: storeSlug, orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,7 +46,7 @@ const OrderConfirmation = () => {
     return (
       <div className="confirmation-container">
         <div className="error-message">{error || 'Order not found'}</div>
-        <button className="back-button" onClick={() => navigate(`/stores/${storeId}/products`)}>
+        <button className="back-button" onClick={() => navigate(`/stores/${storeSlug}/products`)}>
           Back to Store
         </button>
       </div>
@@ -146,7 +146,7 @@ const OrderConfirmation = () => {
         <div className="confirmation-actions">
           <button
             className="view-orders-button"
-            onClick={() => navigate(`/stores/${storeId}/products`)}
+            onClick={() => navigate(`/stores/${storeSlug}/products`)}
           >
             Continue Shopping
           </button>
