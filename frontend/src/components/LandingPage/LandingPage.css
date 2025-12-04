@@ -1,21 +1,307 @@
+/* ============================================
+   LANDING PAGE
+   Premium Landing Page Container - SaaS/Fintech Style
+   Modern, Clean, Fully Responsive
+   ============================================ */
+
 .landing-page {
+  /* Full width coverage */
   width: 100%;
+  max-width: 100vw;
+  
+  /* Full viewport height */
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  
+  /* Prevent horizontal scroll */
   overflow-x: hidden;
-  box-sizing: border-box;
-}
-
-/* Smooth scrolling */
-html {
+  overflow-y: auto;
+  
+  /* Smooth scrolling behavior */
   scroll-behavior: smooth;
+  
+  /* Box model */
+  box-sizing: border-box;
+  
+  /* Clean background */
+  background: var(--color-bg-primary, #ffffff);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Text rendering optimization */
+  text-rendering: optimizeLegibility;
+  
+  /* Position context */
+  position: relative;
+  
+  /* Prevent content from breaking out */
+  contain: layout style paint;
 }
 
-/* Ensure all landing page sections are responsive */
+/* ============================================
+   SMOOTH SCROLLING
+   Enhanced Scroll Behavior
+   ============================================ */
+
+html {
+  /* Smooth scroll behavior */
+  scroll-behavior: smooth;
+  
+  /* Scroll padding for anchor links */
+  scroll-padding-top: 80px;
+  
+  /* Scroll snap (optional) */
+  /* scroll-snap-type: y proximity; */
+}
+
+/* Smooth scroll for browsers that support it */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  * {
+    scroll-behavior: inherit;
+  }
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Mobile-First Approach
+   ============================================ */
+
+/* Mobile (480px and below) */
 @media (max-width: 480px) {
   .landing-page {
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    
+    /* Enhanced mobile containment */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Prevent zoom on input focus (iOS) */
+    font-size: 16px;
+  }
+  
+  /* Adjust scroll padding for mobile header */
+  html {
+    scroll-padding-top: 70px;
+  }
+  
+  /* Ensure all landing page sections prevent horizontal overflow */
+  .landing-page > * {
     max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure images and media don't overflow */
+  .landing-page img,
+  .landing-page video,
+  .landing-page iframe {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+  .landing-page {
+    /* Ensure no horizontal overflow */
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+  
+  html {
+    scroll-padding-top: 75px;
+  }
+  
+  /* Ensure all landing page sections prevent horizontal overflow */
+  .landing-page > * {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure images and media don't overflow */
+  .landing-page img,
+  .landing-page video,
+  .landing-page iframe {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Desktop (1024px and below) */
+@media (max-width: 1024px) {
+  .landing-page {
+    /* Maintain full width */
+    width: 100%;
+    max-width: 100vw;
+    
+    /* Ensure smooth scrolling */
     overflow-x: hidden;
   }
 }
 
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+.landing-page *,
+.landing-page *::before,
+.landing-page *::after {
+  /* Inherit box-sizing */
+  box-sizing: border-box;
+}
+
+/* ============================================
+   ACCESSIBILITY & UX
+   ============================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  .landing-page {
+    scroll-behavior: auto;
+  }
+  
+  * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .landing-page {
+    background: #ffffff;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.landing-page *:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .landing-page {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    overflow: visible;
+    background: white;
+  }
+  
+  /* Remove smooth scrolling in print */
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   Optional Helper Classes
+   ============================================ */
+
+/* Prevent layout shift */
+.landing-page img,
+.landing-page video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure all sections are block-level */
+.landing-page > * {
+  display: block;
+  width: 100%;
+}
+
+/* ============================================
+   SMOOTH ANIMATIONS
+   Consistent with Header Style
+   ============================================ */
+
+.landing-page {
+  /* Smooth transitions for any state changes */
+  transition: var(--transition-base, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+/* ============================================
+   MOBILE-SPECIFIC ENHANCEMENTS
+   ============================================ */
+
+@media (max-width: 480px) {
+  /* Prevent text size adjustment on iOS */
+  .landing-page {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Improve touch targets */
+  .landing-page button,
+  .landing-page a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent pull-to-refresh overscroll (if needed) */
+  .landing-page {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* ============================================
+   SCROLL PERFORMANCE
+   ============================================ */
+
+.landing-page {
+  /* Enable hardware acceleration for smooth scrolling */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  
+  /* Optimize scrolling performance */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   CONSISTENT SPACING & LAYOUT
+   ============================================ */
+
+/* Ensure consistent spacing across all sections */
+.landing-page > section,
+.landing-page > div {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   VISUAL CONSISTENCY
+   Matching Header Style
+   ============================================ */
+
+.landing-page {
+  /* Consistent color scheme */
+  color: var(--color-text-primary, #0f172a);
+  
+  /* Consistent font stack */
+  font-family: var(--font-family-primary, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  
+  /* Consistent line height */
+  line-height: var(--line-height-normal, 1.5);
+}
