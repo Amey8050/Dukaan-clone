@@ -1,145 +1,641 @@
+/* ============================================
+   LANDING HEADER
+   Premium Sticky Header - SaaS/Fintech Style
+   Modern, Minimalistic, Fully Responsive
+   ============================================ */
+
 .landing-header {
   position: sticky;
   top: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e0e0e0;
-  z-index: 1000;
+  
+  /* Lightly blurred, semi-transparent white background */
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  /* Subtle bottom border using design system */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  
+  z-index: var(--z-sticky, 1000);
   padding: 0;
+  
+  width: 100%;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
 }
+
+/* Enhanced backdrop on scroll (optional) */
+.landing-header.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   CONTAINER - Centered Layout
+   ============================================ */
 
 .landing-header-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 16px 48px;
+  
+  /* Balanced padding using design tokens */
+  padding: var(--spacing-4, 16px) var(--spacing-12, 48px);
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
+  
+  /* Balanced gap using design tokens */
+  gap: var(--spacing-8, 32px);
+  
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   LOGO - Left Side Branding
+   ============================================ */
+
+.landing-logo {
+  flex-shrink: 0;
 }
 
 .landing-logo a {
-  font-size: 24px;
-  font-weight: 700;
-  color: #000;
+  /* Typography using design system */
+  font-size: var(--font-size-xl, 1.5rem); /* 24px */
+  font-weight: var(--font-weight-bold, 700);
+  line-height: var(--line-height-tight, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.025em);
+  
+  color: var(--color-text-primary, #000000);
   text-decoration: none;
+  
+  font-family: var(--font-family-display, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  
+  /* Smooth transitions */
+  transition: var(--transition-colors, color 250ms ease);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  display: inline-block;
 }
+
+.landing-logo a:hover {
+  color: var(--color-primary, #667eea);
+}
+
+/* ============================================
+   NAVIGATION - Center Links
+   ============================================ */
 
 .landing-nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  
+  /* Balanced gap using design tokens */
+  gap: var(--spacing-8, 32px);
+  
   flex: 1;
   justify-content: center;
 }
 
+/* ============================================
+   NAV DROPDOWN - Parent Container
+   ============================================ */
+
+.nav-dropdown {
+  position: relative;
+}
+
+/* Show dropdown on hover (desktop only) */
+@media (min-width: 1025px) {
+  .nav-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+/* ============================================
+   NAV LINK - Navigation Links
+   ============================================ */
+
+.nav-link {
+  background: none;
+  border: none;
+  
+  /* Typography using design system */
+  color: var(--color-text-secondary, #475569);
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-normal, 0);
+  
+  cursor: pointer;
+  padding: var(--spacing-2, 8px) 0;
+  text-decoration: none;
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  /* Smooth transitions */
+  transition: var(--transition-colors, color 250ms ease);
+  
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1, 4px);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Underline animation on hover */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary, #667eea);
+  transition: width var(--transition-base, 250ms ease);
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--color-text-primary, #0f172a);
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  width: 100%;
+}
+
+/* Focus state for accessibility */
+.nav-link:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   DROPDOWN MENU - Smooth Hover Menu
+   ============================================ */
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + var(--spacing-2, 8px));
+  left: 0;
+  
+  /* Clean white background */
+  background: var(--color-bg-primary, #ffffff);
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-lg, 10px);
+  
+  /* Soft shadow for depth */
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  padding: var(--spacing-2, 8px) 0;
+  min-width: 200px;
+  
+  /* Smooth transitions */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  pointer-events: none;
+  z-index: var(--z-dropdown, 100);
+  
+  /* Smooth rendering */
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: var(--spacing-3, 12px) var(--spacing-5, 20px);
+  
+  /* Typography using design system */
+  color: var(--color-text-secondary, #475569);
+  text-decoration: none;
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-normal, 400);
+  line-height: var(--line-height-normal, 1.5);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 200ms ease);
+  
+  position: relative;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu a:focus-visible {
+  background: var(--color-bg-secondary, #f8fafc);
+  color: var(--color-text-primary, #0f172a);
+  padding-left: var(--spacing-6, 24px);
+}
+
+.dropdown-menu a:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   MENU TOGGLE - Hamburger to Close Icon
+   ============================================ */
+
 .menu-toggle {
   display: none;
+  
   width: 44px;
   height: 44px;
+  
   border: none;
   background: transparent;
-  border-radius: 50%;
+  
+  /* Perfect circle */
+  border-radius: var(--radius-full, 50%);
+  
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  
+  /* Balanced gap using design tokens */
   gap: 6px;
+  
   cursor: pointer;
-  transition: background 0.3s ease;
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  position: relative;
+  z-index: var(--z-sticky, 1000);
+  
+  /* Accessibility */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.menu-toggle:hover {
+.menu-toggle:hover,
+.menu-toggle:focus-visible {
   background: rgba(0, 0, 0, 0.04);
+}
+
+.menu-toggle:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 2px;
 }
 
 .menu-toggle span {
   width: 22px;
   height: 2px;
-  background: #000;
-  border-radius: 2px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  
+  background: var(--color-text-primary, #000000);
+  
+  /* Smooth rounded ends */
+  border-radius: var(--radius-full, 2px);
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 300ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  display: block;
+  transform-origin: center;
 }
 
+/* Transform to X icon when open */
 .menu-toggle.open span:nth-child(1) {
   transform: translateY(8px) rotate(45deg);
 }
 
 .menu-toggle.open span:nth-child(2) {
   opacity: 0;
+  transform: scaleX(0);
 }
 
 .menu-toggle.open span:nth-child(3) {
   transform: translateY(-8px) rotate(-45deg);
 }
 
-.nav-dropdown {
-  position: relative;
-}
-
-.nav-dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-.nav-link {
-  background: none;
-  border: none;
-  color: #333;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 8px 0;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.nav-link:hover {
-  color: #000;
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 8px 0;
-  min-width: 200px;
-  margin-top: 8px;
-}
-
-.dropdown-menu a {
-  display: block;
-  padding: 12px 20px;
-  color: #333;
-  text-decoration: none;
-  font-size: 14px;
-  transition: background 0.2s;
-}
-
-.dropdown-menu a:hover {
-  background: #f5f5f5;
-}
+/* ============================================
+   HEADER ACTIONS - Right Side Buttons
+   ============================================ */
 
 .landing-header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  
+  /* Balanced gap using design tokens */
+  gap: var(--spacing-4, 16px);
+  
+  flex-shrink: 0;
 }
 
-.nav-mobile-actions {
-  display: none;
+/* ============================================
+   BUTTON LINK - Text Link Style
+   ============================================ */
+
+.btn-link {
+  color: var(--color-text-secondary, #475569);
+  text-decoration: none;
+  
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-normal, 1.5);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  padding: var(--spacing-2, 8px) 0;
+  
+  /* Smooth transitions */
+  transition: var(--transition-colors, color 250ms ease);
+  
+  position: relative;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+.btn-link:hover,
+.btn-link:focus-visible {
+  color: var(--color-text-primary, #0f172a);
+}
+
+.btn-link:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   PRIMARY BUTTON - Dark Action Button
+   ============================================ */
+
+.btn-primary {
+  background: var(--color-text-primary, #000000);
+  color: var(--color-text-inverse, #ffffff);
+  
+  border: none;
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-lg, 10px);
+  
+  /* Balanced padding using design tokens */
+  padding: var(--spacing-2, 8px) var(--spacing-6, 24px);
+  
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-wide, 0.025em);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  cursor: pointer;
+  
+  /* Soft shadow */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  /* Smooth transitions using design system */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  /* Minimum touch target size */
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Accessibility */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-primary:focus-visible {
+  background: var(--color-secondary-800, #1e293b);
+  transform: translateY(-1px);
+  
+  /* Enhanced shadow on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  transition: all 100ms ease;
+  
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid rgba(102, 126, 234, 0.3);
+  outline-offset: 2px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================
+   SECONDARY BUTTON - Light Action Button
+   ============================================ */
+
+.btn-secondary {
+  background: var(--color-bg-secondary, #f8fafc);
+  color: var(--color-text-primary, #000000);
+  
+  border: 1px solid var(--color-border-light, #e2e8f0);
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-lg, 10px);
+  
+  /* Balanced padding using design tokens */
+  padding: var(--spacing-2, 8px) var(--spacing-6, 24px);
+  
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-wide, 0.025em);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  cursor: pointer;
+  
+  /* Smooth transitions using design system */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  /* Minimum touch target size */
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Accessibility */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-secondary:hover:not(:disabled),
+.btn-secondary:focus-visible {
+  background: var(--color-bg-tertiary, #f1f5f9);
+  border-color: var(--color-border-medium, #cbd5e1);
+  transform: translateY(-1px);
+  
+  /* Subtle shadow on hover */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+  transition: all 100ms ease;
+  
+  box-shadow: none;
+}
+
+.btn-secondary:focus-visible {
+  outline: 3px solid rgba(102, 126, 234, 0.3);
+  outline-offset: 2px;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================
+   ADMIN BUTTON - Accent Action Button
+   ============================================ */
+
+.btn-admin {
+  background: var(--color-primary, #667eea);
+  color: var(--color-text-inverse, #ffffff);
+  
+  border: none;
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-lg, 10px);
+  
+  /* Balanced padding using design tokens */
+  padding: var(--spacing-2, 8px) var(--spacing-6, 24px);
+  
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-wide, 0.025em);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Soft shadow */
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  
+  /* Smooth transitions using design system */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  /* Minimum touch target size */
+  min-height: 36px;
+  
+  /* Accessibility */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-admin:hover:not(:disabled),
+.btn-admin:focus-visible {
+  background: var(--color-primary-600, #5568d3);
+  transform: translateY(-1px);
+  
+  /* Enhanced shadow on hover */
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-admin:active:not(:disabled) {
+  transform: translateY(0);
+  transition: all 100ms ease;
+  
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.btn-admin:focus-visible {
+  outline: 3px solid rgba(102, 126, 234, 0.4);
+  outline-offset: 2px;
+}
+
+.btn-admin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================
+   MOBILE NAV OVERLAY - Dark Background
+   ============================================ */
 
 .mobile-nav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 900;
+  
+  /* Dark overlay background */
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  
+  z-index: var(--z-overlay, 900);
+  
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  
+  /* Smooth transitions */
+  transition: opacity var(--transition-base, 250ms ease);
 }
 
 .mobile-nav-overlay.visible {
@@ -147,51 +643,20 @@
   pointer-events: auto;
 }
 
-.btn-link {
-  color: #333;
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 8px 0;
-  transition: color 0.3s;
+/* ============================================
+   MOBILE NAV ACTIONS - Hidden on Desktop
+   ============================================ */
+
+.nav-mobile-actions {
+  display: none;
 }
 
-.btn-link:hover {
-  color: #000;
-}
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Fluid & Adaptive Design
+   ============================================ */
 
-.btn-primary {
-  background: #000;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-primary:hover {
-  background: #333;
-}
-
-.btn-secondary {
-  background: #f5f5f5;
-  color: #000;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-secondary:hover {
-  background: #e0e0e0;
-}
-
+/* Tablet (1024px and below) - Mobile Navigation */
 @media (max-width: 1024px) {
   .landing-header {
     position: fixed;
@@ -199,32 +664,50 @@
   }
 
   .landing-header-container {
-    padding: 16px 24px;
-    gap: 16px;
+    padding: var(--spacing-4, 16px) var(--spacing-6, 24px);
+    gap: var(--spacing-4, 16px);
   }
 
+  /* Show hamburger menu */
   .menu-toggle {
     display: flex;
   }
 
+  /* Slide-in sidebar navigation */
   .landing-nav {
     position: fixed;
     top: 0;
     right: 0;
     width: min(360px, 85vw);
     height: 100vh;
-    background: #fff;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+    
+    background: var(--color-bg-primary, #ffffff);
+    
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 96px 32px 32px;
-    gap: 20px;
-    box-shadow: -12px 0 24px rgba(0, 0, 0, 0.1);
+    
+    padding: calc(var(--spacing-24, 96px) + var(--spacing-2, 8px)) var(--spacing-8, 32px) var(--spacing-8, 32px);
+    gap: var(--spacing-5, 20px);
+    
+    /* Soft shadow for depth */
+    box-shadow: 
+      -12px 0 24px rgba(0, 0, 0, 0.1),
+      -4px 0 12px rgba(0, 0, 0, 0.05);
+    
+    /* Slide in from right */
     transform: translateX(100%);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    z-index: 950;
+    
+    /* Smooth transitions */
+    transition: var(--transition-all, all 300ms cubic-bezier(0.4, 0, 0.2, 1));
+    
+    z-index: var(--z-sidebar, 950);
+    
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .landing-nav.open {
@@ -233,68 +716,182 @@
     pointer-events: auto;
   }
 
+  /* Hide desktop actions */
   .landing-header-actions {
     display: none;
   }
 
+  /* Full-width nav links in sidebar */
   .nav-link {
     width: 100%;
     justify-content: space-between;
-    padding: 10px 0;
-    font-size: 15px;
+    padding: var(--spacing-2, 8px) 0;
+    font-size: var(--font-size-sm, 0.875rem); /* 15px */
+  }
+  
+  /* Dropdown arrow for mobile */
+  .nav-link .dropdown-arrow {
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
+  /* Full-width dropdown container */
   .nav-dropdown {
     width: 100%;
   }
 
+  /* Collapsible dropdown in sidebar for mobile */
   .dropdown-menu {
-    position: static;
+    position: static !important;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--spacing-1, 4px);
     padding: 0;
     box-shadow: none;
-    margin-top: 8px;
+    margin-top: var(--spacing-2, 8px);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: none !important;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease, visibility 0.3s ease;
+  }
+  
+  /* Open state for mobile dropdowns */
+  .dropdown-menu.open {
+    max-height: 500px;
+    opacity: 1;
+    visibility: visible;
+    margin-top: var(--spacing-2, 8px);
   }
 
   .dropdown-menu a {
-    padding: 4px 0;
-    font-size: 15px;
+    padding: var(--spacing-1, 4px) 0;
+    font-size: var(--font-size-sm, 0.875rem); /* 15px */
   }
 
+  /* Show mobile actions in sidebar */
   .nav-mobile-actions {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--spacing-3, 12px);
     width: 100%;
-    margin-top: 8px;
+    margin-top: var(--spacing-2, 8px);
   }
 
+  /* Full-width buttons in sidebar */
   .btn-primary,
-  .btn-secondary {
+  .btn-secondary,
+  .btn-admin {
     width: 100%;
     justify-content: center;
   }
 }
 
+/* Mobile (600px and below) - Compact Layout */
 @media (max-width: 600px) {
   .landing-header-container {
-    padding: 12px 16px;
-    gap: 12px;
+    padding: var(--spacing-3, 12px) var(--spacing-4, 16px);
+    gap: var(--spacing-3, 12px);
   }
 
   .landing-logo a {
-    font-size: 20px;
+    font-size: var(--font-size-lg, 1.25rem); /* 20px */
   }
 
   .nav-link {
-    font-size: 14px;
+    font-size: var(--font-size-xs, 0.75rem); /* 14px */
   }
 
   .dropdown-menu a,
   .btn-link {
-    font-size: 14px;
+    font-size: var(--font-size-xs, 0.75rem); /* 14px */
+  }
+  
+  .landing-nav {
+    padding: calc(var(--spacing-20, 80px) + var(--spacing-2, 8px)) var(--spacing-6, 24px) var(--spacing-6, 24px);
+    width: min(320px, 90vw);
   }
 }
 
+/* ============================================
+   ACCESSIBILITY & PERFORMANCE
+   ============================================ */
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .landing-header,
+  .menu-toggle,
+  .nav-link,
+  .dropdown-menu,
+  .btn-primary,
+  .btn-secondary,
+  .btn-admin,
+  .mobile-nav-overlay,
+  .landing-nav {
+    transition: none;
+  }
+  
+  .menu-toggle.open span {
+    transition: none;
+  }
+  
+  .btn-primary:hover:not(:disabled),
+  .btn-secondary:hover:not(:disabled),
+  .btn-admin:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .landing-header {
+    background: #ffffff;
+    border-bottom: 2px solid #000000;
+  }
+  
+  .nav-link,
+  .btn-link {
+    font-weight: var(--font-weight-semibold, 600);
+  }
+  
+  .btn-primary,
+  .btn-secondary,
+  .btn-admin {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Focus visible improvements */
+*:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .landing-header {
+    position: static;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .menu-toggle,
+  .landing-header-actions,
+  .nav-mobile-actions {
+    display: none;
+  }
+  
+  .landing-nav {
+    position: static;
+    transform: none;
+    opacity: 1;
+    box-shadow: none;
+    height: auto;
+    overflow: visible;
+  }
+}

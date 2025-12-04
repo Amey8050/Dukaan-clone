@@ -7,8 +7,21 @@ const LandingHeader = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   const closeMenu = () => setMenuOpen(false);
+  
+  const toggleDropdown = (dropdownName) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  // Debug: Log user role
+  useEffect(() => {
+    if (user) {
+      console.log('User in header:', user);
+      console.log('User role:', user.role);
+    }
+  }, [user]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -18,15 +31,28 @@ const LandingHeader = () => {
   }, [menuOpen]);
 
   const actionButtons = user ? (
-    <button
-      className="btn-secondary"
-      onClick={() => {
-        navigate('/dashboard');
-        closeMenu();
-      }}
-    >
-      Dashboard
-    </button>
+    <>
+      {/* Always show admin button for logged-in users - will be protected by route */}
+      <button
+        className="btn-admin"
+        onClick={() => {
+          navigate('/admin');
+          closeMenu();
+        }}
+        title={user.role === 'admin' ? 'Admin Panel' : 'Admin Panel (Access Denied)'}
+      >
+        Admin
+      </button>
+      <button
+        className="btn-secondary"
+        onClick={() => {
+          navigate('/dashboard');
+          closeMenu();
+        }}
+      >
+        Dashboard
+      </button>
+    </>
   ) : (
     <>
       <Link to="/login" className="btn-link" onClick={closeMenu}>
@@ -68,10 +94,29 @@ const LandingHeader = () => {
           className={`landing-nav ${menuOpen ? 'open' : ''}`}
         >
           <div className="nav-dropdown">
-            <button className="nav-link" type="button">
+            <button 
+              className={`nav-link ${openDropdown === 'products' ? 'open' : ''}`} 
+              type="button"
+              onClick={() => toggleDropdown('products')}
+            >
               Products
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className="dropdown-arrow"
+                style={{ 
+                  transform: openDropdown === 'products' ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
-            <div className="dropdown-menu">
+            <div className={`dropdown-menu ${openDropdown === 'products' ? 'open' : ''}`}>
               <Link to="/themes" onClick={closeMenu}>
                 Dukaan themes
               </Link>
@@ -87,10 +132,29 @@ const LandingHeader = () => {
             </div>
           </div>
           <div className="nav-dropdown">
-            <button className="nav-link" type="button">
+            <button 
+              className={`nav-link ${openDropdown === 'company' ? 'open' : ''}`} 
+              type="button"
+              onClick={() => toggleDropdown('company')}
+            >
               Company
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className="dropdown-arrow"
+                style={{ 
+                  transform: openDropdown === 'company' ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
-            <div className="dropdown-menu">
+            <div className={`dropdown-menu ${openDropdown === 'company' ? 'open' : ''}`}>
               <Link to="/careers" onClick={closeMenu}>
                 Careers
               </Link>
@@ -100,10 +164,29 @@ const LandingHeader = () => {
             </div>
           </div>
           <div className="nav-dropdown">
-            <button className="nav-link" type="button">
+            <button 
+              className={`nav-link ${openDropdown === 'resources' ? 'open' : ''}`} 
+              type="button"
+              onClick={() => toggleDropdown('resources')}
+            >
               Resources
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className="dropdown-arrow"
+                style={{ 
+                  transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease'
+                }}
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
-            <div className="dropdown-menu">
+            <div className={`dropdown-menu ${openDropdown === 'resources' ? 'open' : ''}`}>
               <Link to="/blog" onClick={closeMenu}>
                 Blog
               </Link>
