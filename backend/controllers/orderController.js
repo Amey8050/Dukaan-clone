@@ -215,14 +215,31 @@ const orderController = {
         });
       }
 
-      // Update inventory for products that track inventory
+      // Update inventory for products that track inventory and check for low stock
+      const { checkAndNotifyLowStock } = require('../utils/notificationHelper');
+      
       for (const item of cartItems) {
         if (item.product.track_inventory) {
           const newQuantity = item.product.inventory_quantity - item.quantity;
-          await supabaseAdmin
+          
+          // Update inventory
+          const { data: updatedProduct } = await supabaseAdmin
             .from('products')
             .update({ inventory_quantity: newQuantity })
-            .eq('id', item.product_id);
+            .eq('id', item.product_id)
+            .select('low_stock_threshold')
+            .single();
+
+          // Check and notify if stock is low (run asynchronously, don't block)
+          if (updatedProduct) {
+            checkAndNotifyLowStock(
+              item.product_id,
+              newQuantity,
+              updatedProduct.low_stock_threshold || item.product.low_stock_threshold || 5
+            ).catch(err => {
+              console.error(`Failed to check low stock for product ${item.product_id}:`, err);
+            });
+          }
         }
       }
 

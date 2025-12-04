@@ -174,7 +174,46 @@ Make it SEO-friendly, highlight benefits, and use persuasive language.`;
         });
       }
 
-      const model = getModel();
+      // Build fallback SEO data
+      const buildFallbackSEO = () => {
+        const keywords = [
+          product_name.toLowerCase(),
+          ...(category ? [category.toLowerCase()] : []),
+          'buy online',
+          'best price',
+          'free shipping'
+        ].filter(Boolean);
+        
+        return {
+          keywords: keywords.slice(0, 10),
+          seo_title: `${product_name}${category ? ` - Best ${category}` : ''} | Online Store`,
+          seo_description: `Shop ${product_name} online. ${description ? description.substring(0, 120) : 'High quality product with great features and best prices.'}`
+        };
+      };
+
+      // Check if AI is available
+      if (!isAIAvailable()) {
+        console.warn('AI not available, using fallback SEO generation');
+        return res.json({
+          success: true,
+          data: buildFallbackSEO(),
+          fallback: true
+        });
+      }
+
+      // Get model with error handling
+      let model;
+      try {
+        model = getModel();
+      } catch (modelError) {
+        console.warn('Failed to get AI model, using fallback SEO:', modelError.message);
+        return res.json({
+          success: true,
+          data: buildFallbackSEO(),
+          fallback: true,
+          warning: 'AI model initialization failed'
+        });
+      }
 
       // Optimized prompt - shorter and direct
       const prompt = `Generate SEO for: ${product_name}${category ? ` (${category})` : ''}
@@ -184,39 +223,70 @@ Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description"
 
       const startTime = Date.now();
       
-      // Use timeout helper (12 seconds for SEO)
-      const result = await withTimeout(model.generateContent(prompt), 12000);
-      const response = await result.response;
-      const aiResponse = response.text();
-      
-      const duration = Date.now() - startTime;
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`✅ SEO generated in ${duration}ms`);
-      }
-
-      // Try to parse JSON response
       let seoData;
+      
       try {
-        // Extract JSON from markdown code blocks if present
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          seoData = JSON.parse(jsonMatch[0]);
-        } else {
-          seoData = JSON.parse(aiResponse);
+        // Use timeout helper (12 seconds for SEO)
+        const result = await withTimeout(model.generateContent(prompt), 12000);
+        const response = await result.response;
+        
+        // Check if response has text
+        if (!response || !response.text) {
+          throw new Error('Invalid response from AI API. Response does not contain text.');
         }
-      } catch (parseError) {
-        // Fallback: extract keywords from text
-        const keywords = aiResponse
-          .split(/[,\n]/)
-          .map(k => k.trim())
-          .filter(k => k.length > 0)
-          .slice(0, 10);
+        
+        const aiResponse = response.text();
+        
+        const duration = Date.now() - startTime;
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ SEO generated in ${duration}ms`);
+        }
 
-        seoData = {
-          keywords: keywords,
-          seo_title: `${product_name} - Best ${category || 'Product'} Online`,
-          seo_description: `Buy ${product_name} online. ${description ? description.substring(0, 120) : 'High quality product with great features.'}`
-        };
+        // Try to parse JSON response
+        try {
+          // Extract JSON from markdown code blocks if present
+          const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            seoData = JSON.parse(jsonMatch[0]);
+          } else {
+            seoData = JSON.parse(aiResponse);
+          }
+          
+          // Validate SEO data structure
+          if (!seoData.keywords || !Array.isArray(seoData.keywords)) {
+            throw new Error('Invalid SEO data format');
+          }
+        } catch (parseError) {
+          // Fallback: extract keywords from text
+          const keywords = aiResponse
+            .split(/[,\n]/)
+            .map(k => k.trim())
+            .filter(k => k.length > 0 && k.length < 50)
+            .slice(0, 10);
+
+          seoData = buildFallbackSEO();
+          if (keywords.length > 0) {
+            seoData.keywords = [...new Set([...keywords, ...seoData.keywords])].slice(0, 10);
+          }
+        }
+      } catch (apiError) {
+        const duration = Date.now() - startTime;
+        
+        // Handle specific error types
+        if (isTimeoutError(apiError)) {
+          console.warn(`⚠️  AI SEO generation timeout after ${duration}ms. Using fallback SEO.`);
+          seoData = buildFallbackSEO();
+        } else if (apiError.message?.includes('API_KEY_INVALID') || apiError.message?.includes('invalid API key')) {
+          console.warn('Invalid AI API key, using fallback SEO');
+          seoData = buildFallbackSEO();
+        } else if (apiError.message?.includes('QUOTA') || apiError.message?.includes('quota')) {
+          console.warn('AI API quota exceeded, using fallback SEO');
+          seoData = buildFallbackSEO();
+        } else {
+          console.error('AI SEO Generation Error:', apiError.message);
+          // Use fallback on any error
+          seoData = buildFallbackSEO();
+        }
       }
 
       res.json({
@@ -224,13 +294,31 @@ Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description"
         data: seoData
       });
     } catch (error) {
-      console.error('AI SEO Generation Error:', error);
-      res.status(500).json({
-        success: false,
-        error: {
-          message: 'Failed to generate SEO keywords',
-          details: error.message
-        }
+      console.error('\n========== AI SEO GENERATION ERROR ==========');
+      console.error('Timestamp:', new Date().toISOString());
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('=============================================\n');
+      
+      // Always return fallback SEO data instead of failing
+      const { product_name, category, description } = req.body;
+      const fallbackSEO = {
+        keywords: [
+          product_name?.toLowerCase() || 'product',
+          ...(category ? [category.toLowerCase()] : []),
+          'buy online',
+          'best price'
+        ].filter(Boolean).slice(0, 10),
+        seo_title: `${product_name || 'Product'}${category ? ` - Best ${category}` : ''} | Online Store`,
+        seo_description: `Shop ${product_name || 'this product'} online. ${description ? description.substring(0, 120) : 'High quality product with great features.'}`
+      };
+
+      res.json({
+        success: true,
+        data: fallbackSEO,
+        fallback: true,
+        warning: 'AI generation failed, using fallback SEO data'
       });
     }
   },
@@ -240,41 +328,249 @@ Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description"
     try {
       const { product_id, user_id, store_id } = req.body;
 
-      // This is a placeholder - in a real implementation, you would:
-      // 1. Get user's purchase/view history
-      // 2. Get similar products
-      // 3. Use AI to generate personalized recommendations
+      if (!store_id) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Store ID is required'
+          }
+        });
+      }
 
-      const model = getModel();
+      const { supabaseAdmin } = require('../utils/supabaseClient');
 
-      const prompt = `Generate 5 product recommendations for an e-commerce store customer.
+      // Get product details if product_id provided
+      let product = null;
+      if (product_id) {
+        const { data: productData } = await supabaseAdmin
+          .from('products')
+          .select('id, name, category_id, tags, price, description')
+          .eq('id', product_id)
+          .eq('store_id', store_id)
+          .single();
+        
+        product = productData;
+      }
 
-Context:
-- Store ID: ${store_id || 'N/A'}
-- Product ID: ${product_id || 'N/A'}
-- User ID: ${user_id || 'Guest'}
+      // Get user's purchase/view history if user_id provided
+      let purchasedProducts = [];
+      let viewedProducts = [];
+      
+      if (user_id) {
+        // Get purchase history
+        const { data: orders } = await supabaseAdmin
+          .from('orders')
+          .select(`
+            order_items (
+              product_id,
+              products (id, name, category_id, tags)
+            )
+          `)
+          .eq('store_id', store_id)
+          .eq('user_id', user_id)
+          .eq('status', 'delivered')
+          .limit(10);
 
-Generate recommendations based on:
-- Similar products
-- Popular items
-- Trending products
-- Complementary items
+        if (orders) {
+          orders.forEach(order => {
+            order.order_items?.forEach(item => {
+              if (item.products && !purchasedProducts.find(p => p.id === item.products.id)) {
+                purchasedProducts.push(item.products);
+              }
+            });
+          });
+        }
 
-Return a JSON array of product recommendations with reasons:
+        // Get viewed products from analytics
+        const { data: views } = await supabaseAdmin
+          .from('analytics_events')
+          .select('product_id, products(id, name, category_id, tags)')
+          .eq('store_id', store_id)
+          .eq('user_id', user_id)
+          .eq('event_type', 'product_view')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (views) {
+          views.forEach(view => {
+            if (view.products && !viewedProducts.find(p => p.id === view.products.id)) {
+              viewedProducts.push(view.products);
+            }
+          });
+        }
+      }
+
+      // Get all active products from the store
+      const { data: allProducts } = await supabaseAdmin
+        .from('products')
+        .select('id, name, description, category_id, tags, price, images, featured')
+        .eq('store_id', store_id)
+        .eq('status', 'active')
+        .limit(100);
+
+      if (!allProducts || allProducts.length === 0) {
+        return res.json({
+          success: true,
+          data: {
+            recommendations: [],
+            message: 'No products available for recommendations'
+          }
+        });
+      }
+
+      // Filter out already purchased/viewed products
+      const excludedIds = new Set([
+        product_id,
+        ...purchasedProducts.map(p => p.id),
+        ...viewedProducts.map(p => p.id)
+      ].filter(Boolean));
+
+      const candidateProducts = allProducts.filter(p => !excludedIds.has(p.id));
+
+      // Use AI to generate recommendations if available
+      if (isAIAvailable() && candidateProducts.length > 0) {
+        try {
+          const model = getModel();
+          
+          const context = product 
+            ? `User is viewing: ${product.name}${product.description ? `. ${product.description.substring(0, 200)}` : ''}`
+            : user_id && purchasedProducts.length > 0
+            ? `User has purchased: ${purchasedProducts.map(p => p.name).join(', ')}`
+            : user_id && viewedProducts.length > 0
+            ? `User has viewed: ${viewedProducts.map(p => p.name).join(', ')}`
+            : 'New customer';
+
+          const productList = candidateProducts
+            .slice(0, 30)
+            .map(p => `${p.name} ($${p.price})${p.tags && p.tags.length > 0 ? ` - Tags: ${p.tags.join(', ')}` : ''}`)
+            .join('\n');
+
+          const prompt = `Analyze e-commerce product recommendations for a customer.
+
+${context}
+
+Available Products (candidate recommendations):
+${productList}
+
+Generate 5-8 product recommendations. Consider:
+1. Similar products (same category/tags)
+2. Complementary products
+3. Popular/trending items
+4. Products in similar price range
+5. Featured products
+
+Return JSON array with product names (exact match from list above) and reasons:
 [
-  {
-    "product_id": "uuid",
-    "reason": "Customers who bought this also bought..."
-  }
+  {"product_name": "Exact Product Name", "reason": "Why recommend this"},
+  ...
 ]`;
 
-      // For now, return a simple response
-      // In production, this would analyze user behavior and product data
+          const result = await withTimeout(model.generateContent(prompt), 15000);
+          const response = await result.response;
+          const aiResponse = response.text();
+
+          // Extract JSON from response
+          let recommendedNames = [];
+          try {
+            const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              const parsed = JSON.parse(jsonMatch[0]);
+              recommendedNames = Array.isArray(parsed) 
+                ? parsed.map(item => typeof item === 'string' ? item : item.product_name || item.name).filter(Boolean)
+                : [];
+            }
+          } catch (parseError) {
+            // Fallback: extract product names from text
+            recommendedNames = aiResponse
+              .split('\n')
+              .map(line => {
+                const match = line.match(/"product_name":\s*"([^"]+)"/i) || 
+                             line.match(/"name":\s*"([^"]+)"/i) ||
+                             line.match(/- (.+?)(?:\s*\(|\s*$)/);
+                return match ? match[1] : null;
+              })
+              .filter(Boolean)
+              .slice(0, 8);
+          }
+
+          // Match recommended names to actual products
+          const recommendations = recommendedNames
+            .map(name => {
+              const matchedProduct = candidateProducts.find(p => 
+                p.name.toLowerCase() === name.toLowerCase() ||
+                p.name.toLowerCase().includes(name.toLowerCase()) ||
+                name.toLowerCase().includes(p.name.toLowerCase())
+              );
+              return matchedProduct;
+            })
+            .filter(Boolean)
+            .slice(0, 8)
+            .map(p => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              images: p.images,
+              featured: p.featured
+            }));
+
+          return res.json({
+            success: true,
+            data: {
+              recommendations: recommendations,
+              count: recommendations.length,
+              method: 'ai_powered',
+              based_on: {
+                product: product ? product.name : null,
+                purchases: purchasedProducts.length,
+                views: viewedProducts.length
+              }
+            }
+          });
+        } catch (aiError) {
+          console.warn('AI recommendation failed, using fallback:', aiError.message);
+        }
+      }
+
+      // Fallback: Generate recommendations based on category/tags/popularity
+      let recommendations = [];
+      
+      if (product) {
+        // Find similar products by category/tags
+        const similarProducts = candidateProducts
+          .filter(p => 
+            p.category_id === product.category_id ||
+            (p.tags && product.tags && p.tags.some(tag => product.tags.includes(tag)))
+          )
+          .slice(0, 5);
+        
+        recommendations.push(...similarProducts);
+      }
+
+      // Add popular/featured products
+      const popularProducts = candidateProducts
+        .filter(p => p.featured || !recommendations.find(r => r.id === p.id))
+        .slice(0, 8 - recommendations.length);
+
+      recommendations.push(...popularProducts);
+      recommendations = recommendations.slice(0, 8);
+
       res.json({
         success: true,
         data: {
-          recommendations: [],
-          message: 'Recommendation engine will analyze user behavior and product data'
+          recommendations: recommendations.map(p => ({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            images: p.images,
+            featured: p.featured
+          })),
+          count: recommendations.length,
+          method: 'algorithmic',
+          based_on: {
+            product: product ? product.name : null,
+            purchases: purchasedProducts.length,
+            views: viewedProducts.length
+          }
         }
       });
     } catch (error) {
@@ -430,14 +726,57 @@ Return JSON: {"suggested_price": X, "pricing_tiers": [{"tier":"low","price":X},.
         const response = await result.response;
         const analysis = response.text();
 
+        // Extract structured insights from analysis
+        const analysisText = analysis.trim();
+        const qualityKeywords = {
+          'excellent': 'excellent',
+          'good': 'good',
+          'fair': 'fair',
+          'poor': 'poor',
+          'needs improvement': 'needs_improvement'
+        };
+        
+        let qualityScore = 'needs_improvement';
+        for (const [keyword, score] of Object.entries(qualityKeywords)) {
+          if (analysisText.toLowerCase().includes(keyword)) {
+            qualityScore = score;
+            break;
+          }
+        }
+        
+        // Extract recommendations
+        const recommendations = analysisText
+          .split('\n')
+          .filter(line => {
+            const lower = line.toLowerCase();
+            return lower.includes('suggestion') || 
+                   lower.includes('recommend') ||
+                   lower.includes('improve') ||
+                   lower.includes('should') ||
+                   lower.includes('better') ||
+                   /^\d+\./.test(line.trim()); // Numbered list items
+          })
+          .slice(0, 10)
+          .map(line => line.trim().replace(/^\d+\.\s*/, ''))
+          .filter(line => line.length > 10);
+
         res.json({
           success: true,
           data: {
             original_url: image_url,
-            cleaned_url: image_url, // In production, integrate with image processing service
-            analysis: analysis.trim(),
+            enhanced_url: image_url, // Enhanced URL (same as original unless processing service integrated)
+            analysis: analysisText,
             action: action,
-            message: 'Image analyzed successfully. For actual image processing, integrate with Cloudinary, Imgix, or similar service.'
+            quality_score: qualityScore,
+            recommendations: recommendations.length > 0 ? recommendations : [
+              'Ensure proper lighting for product visibility',
+              'Use a clean, neutral background',
+              'Take photos from multiple angles',
+              'Ensure product is in focus',
+              'Consider using high-resolution images'
+            ],
+            message: 'Image analyzed successfully. Analysis includes quality assessment and enhancement recommendations.',
+            note: 'For actual image processing/enhancement (resize, crop, filters), integrate with Cloudinary, Imgix, or similar service in production. Current implementation provides analysis and recommendations.'
           }
         });
       } catch (visionError) {

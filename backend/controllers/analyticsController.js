@@ -563,6 +563,20 @@ const analyticsController = {
         });
       }
 
+      // Validate store_id is a valid UUID format (skip tracking if invalid)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(store_id)) {
+        // Silently skip tracking for invalid store IDs (like "cart", "checkout", etc.)
+        // This prevents errors when routes are incorrectly parsed
+        return res.json({
+          success: true,
+          data: {
+            event: null,
+            message: 'Skipped: Invalid store ID format'
+          }
+        });
+      }
+
       // Validate event type
       const validEventTypes = ['page_view', 'product_view', 'add_to_cart', 'purchase', 'search'];
       if (!validEventTypes.includes(event_type)) {

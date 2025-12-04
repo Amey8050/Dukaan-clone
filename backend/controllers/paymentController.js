@@ -161,48 +161,153 @@ const paymentController = {
       const webhookSignature = req.headers['x-razorpay-signature'];
       const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || '';
 
-      // Verify webhook signature
-      const text = JSON.stringify(req.body);
-      const generatedSignature = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(text)
-        .digest('hex');
+      // Log webhook received (without sensitive data)
+      console.log('📥 Payment webhook received:', {
+        event: req.body?.event,
+        entity: req.body?.payload?.payment?.entity?.id,
+        hasSignature: !!webhookSignature,
+        hasSecret: !!webhookSecret
+      });
 
-      if (generatedSignature !== webhookSignature) {
-        return res.status(400).json({
-          success: false,
-          error: {
-            message: 'Invalid webhook signature'
-          }
-        });
+      // Verify webhook signature if secret is configured
+      if (webhookSecret) {
+        const text = JSON.stringify(req.body);
+        const generatedSignature = crypto
+          .createHmac('sha256', webhookSecret)
+          .update(text)
+          .digest('hex');
+
+        if (generatedSignature !== webhookSignature) {
+          console.error('❌ Invalid webhook signature:', {
+            received: webhookSignature?.substring(0, 10) + '...',
+            generated: generatedSignature?.substring(0, 10) + '...'
+          });
+          
+          return res.status(400).json({
+            success: false,
+            error: {
+              message: 'Invalid webhook signature',
+              help: 'Verify RAZORPAY_WEBHOOK_SECRET matches the secret in Razorpay dashboard'
+            }
+          });
+        }
+      } else {
+        console.warn('⚠️  Webhook secret not configured. Skipping signature verification.');
+        console.warn('⚠️  To enable webhook verification, add RAZORPAY_WEBHOOK_SECRET to .env');
       }
 
       const event = req.body.event;
-      const payment = req.body.payload.payment?.entity;
+      const payment = req.body.payload?.payment?.entity;
+      const orderId = req.body.payload?.order?.entity?.id || payment?.order_id;
 
-      if (event === 'payment.captured' && payment) {
-        // Find order by payment_id
-        const { data: order } = await supabaseAdmin
-          .from('orders')
-          .select('*')
-          .eq('payment_id', payment.order_id)
-          .single();
+      // Handle different webhook events
+      switch (event) {
+        case 'payment.captured':
+          if (payment && orderId) {
+            // Find order by Razorpay order ID (stored in payment_id field)
+            const { data: orders, error: findError } = await supabaseAdmin
+              .from('orders')
+              .select('*')
+              .eq('payment_id', orderId)
+              .limit(1);
 
-        if (order) {
-          // Update order payment status
-          await supabaseAdmin
-            .from('orders')
-            .update({
-              payment_status: 'paid',
-              status: 'processing',
-            })
-            .eq('id', order.id);
-        }
+            if (findError) {
+              console.error('Error finding order:', findError);
+              break;
+            }
+
+            if (orders && orders.length > 0) {
+              const order = orders[0];
+              
+              // Update order payment status
+              const { error: updateError } = await supabaseAdmin
+                .from('orders')
+                .update({
+                  payment_status: 'paid',
+                  status: order.status === 'pending' ? 'processing' : order.status,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', order.id);
+
+              if (updateError) {
+                console.error('Error updating order status:', updateError);
+              } else {
+                console.log('✅ Order payment status updated:', order.id);
+
+                // Create notification for store owner about payment
+                try {
+                  const { createOrderNotification } = require('../utils/notificationHelper');
+                  const { data: store } = await supabaseAdmin
+                    .from('stores')
+                    .select('owner_id')
+                    .eq('id', order.store_id)
+                    .single();
+
+                  if (store) {
+                    await createOrderNotification(
+                      store.owner_id,
+                      order.store_id,
+                      order.id,
+                      order.total
+                    );
+                  }
+                } catch (notifError) {
+                  console.error('Error creating payment notification:', notifError);
+                }
+              }
+            } else {
+              console.warn('⚠️  Order not found for payment:', orderId);
+            }
+          }
+          break;
+
+        case 'payment.failed':
+          if (payment && orderId) {
+            const { data: orders } = await supabaseAdmin
+              .from('orders')
+              .select('*')
+              .eq('payment_id', orderId)
+              .limit(1);
+
+            if (orders && orders.length > 0) {
+              await supabaseAdmin
+                .from('orders')
+                .update({
+                  payment_status: 'failed',
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', orders[0].id);
+              
+              console.log('❌ Payment failed for order:', orders[0].id);
+            }
+          }
+          break;
+
+        case 'order.paid':
+          // Handle order paid event
+          console.log('✅ Order paid event received:', orderId);
+          break;
+
+        default:
+          console.log('ℹ️  Unhandled webhook event:', event);
       }
 
-      res.json({ success: true, message: 'Webhook processed' });
+      // Always return success to Razorpay (to avoid retries)
+      res.json({ 
+        success: true, 
+        message: 'Webhook processed successfully',
+        event: event,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
-      next(error);
+      console.error('💥 Webhook processing error:', error);
+      // Still return 200 to prevent Razorpay from retrying
+      res.status(200).json({ 
+        success: false, 
+        message: 'Webhook received but processing failed',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
     }
   }
 };

@@ -36,6 +36,130 @@ const makeSlugUnique = async (baseSlug, storeId) => {
   }
 };
 
+// Helper function to make category slug unique within a store
+const makeCategorySlugUnique = async (baseSlug, storeId) => {
+  let slug = baseSlug;
+  let counter = 1;
+  
+  while (true) {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('id')
+      .eq('store_id', storeId)
+      .eq('slug', slug)
+      .single();
+    
+    if (error && error.code === 'PGRST116') {
+      return slug;
+    }
+    
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+};
+
+// Category name mapping - maps common category names to display names
+const mapCategoryName = (categoryName) => {
+  if (!categoryName || typeof categoryName !== 'string') {
+    return null;
+  }
+  
+  const normalized = categoryName.toLowerCase().trim();
+  
+  // Category mapping - maps common names to better display names
+  const categoryMap = {
+    'food': 'Eatable',
+    'foods': 'Eatable',
+    'eatable': 'Eatable',
+    'eatables': 'Eatable',
+    'drink': 'Beverages',
+    'drinks': 'Beverages',
+    'beverage': 'Beverages',
+    'beverages': 'Beverages',
+    'cloth': 'Clothing',
+    'clothes': 'Clothing',
+    'clothing': 'Clothing',
+    'apparel': 'Clothing',
+    'electronic': 'Electronics',
+    'electronics': 'Electronics',
+    'tech': 'Electronics',
+    'technology': 'Electronics',
+    'book': 'Books',
+    'books': 'Books',
+    'toy': 'Toys',
+    'toys': 'Toys',
+    'game': 'Games',
+    'games': 'Games',
+    'sport': 'Sports',
+    'sports': 'Sports',
+    'health': 'Health & Wellness',
+    'wellness': 'Health & Wellness',
+    'beauty': 'Beauty & Personal Care',
+    'cosmetic': 'Beauty & Personal Care',
+    'home': 'Home & Kitchen',
+    'kitchen': 'Home & Kitchen',
+    'furniture': 'Furniture',
+    'decor': 'Home Decor',
+    'decoration': 'Home Decor',
+  };
+  
+  // Return mapped name if exists, otherwise capitalize the first letter of each word
+  if (categoryMap[normalized]) {
+    return categoryMap[normalized];
+  }
+  
+  // Capitalize first letter of each word for unknown categories
+  return categoryName
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+// Find or create category by name
+const findOrCreateCategory = async (categoryName, storeId) => {
+  if (!categoryName || typeof categoryName !== 'string' || !categoryName.trim()) {
+    return null;
+  }
+  
+  // Map category name (e.g., "food" -> "Eatable")
+  const mappedName = mapCategoryName(categoryName.trim());
+  const categorySlug = generateSlug(mappedName);
+  const uniqueSlug = await makeCategorySlugUnique(categorySlug, storeId);
+  
+  // First, try to find existing category by name (case-insensitive)
+  const { data: existingCategory, error: findError } = await supabaseAdmin
+    .from('categories')
+    .select('id, name, slug')
+    .eq('store_id', storeId)
+    .ilike('name', mappedName)
+    .single();
+  
+  if (existingCategory && !findError) {
+    // Category exists, return it
+    return existingCategory.id;
+  }
+  
+  // Category doesn't exist, create it
+  const { data: newCategory, error: createError } = await supabaseAdmin
+    .from('categories')
+    .insert({
+      store_id: storeId,
+      name: mappedName,
+      slug: uniqueSlug,
+      description: `Category for ${mappedName} products`
+    })
+    .select('id')
+    .single();
+  
+  if (createError || !newCategory) {
+    console.error(`Failed to create category "${mappedName}":`, createError?.message);
+    return null;
+  }
+  
+  console.log(`✅ Created new category: "${mappedName}" (${newCategory.id})`);
+  return newCategory.id;
+};
+
 const productController = {
   // Get products by store
   getProductsByStore: async (req, res, next) => {
@@ -43,20 +167,30 @@ const productController = {
       const { storeId } = req.params;
       const { status, category_id, featured, limit = 50, offset = 0 } = req.query;
 
-      // Build query
+      if (!storeId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Store ID is required'
+          }
+        });
+      }
+
+      // Build query - OPTIMIZED: Select only needed fields instead of *
       let query = supabaseAdmin
         .from('products')
-        .select('*')
+        .select('id, name, slug, description, short_description, price, compare_at_price, images, category_id, status, featured, sku, inventory_quantity, track_inventory, low_stock_threshold, weight, tags, seo_title, seo_description, seo_keywords, created_at, updated_at')
         .eq('store_id', storeId);
         // Note: Add .is('deleted_at', null) after adding deleted_at column to schema
 
       // Apply filters
-      if (status) {
+      if (status && status !== 'all') {
         query = query.eq('status', status);
-      } else {
-        // Default: only show active products for public
+      } else if (!status) {
+        // Default: only show active products for public (when no status specified)
         query = query.eq('status', 'active');
       }
+      // If status is 'all', don't filter by status
 
       if (category_id) {
         query = query.eq('category_id', category_id);
@@ -66,8 +200,10 @@ const productController = {
         query = query.eq('featured', true);
       }
 
-      // Apply pagination
-      query = query.range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1);
+      // Apply pagination with max limit for performance
+      const maxLimit = Math.min(parseInt(limit) || 50, 100); // Cap at 100 items per request
+      const offsetValue = Math.max(0, parseInt(offset) || 0);
+      query = query.range(offsetValue, offsetValue + maxLimit - 1);
       query = query.order('created_at', { ascending: false });
 
       const { data: products, error } = await query;
@@ -89,15 +225,73 @@ const productController = {
         });
       }
 
+      // Ensure products is always an array
+      const productsArray = Array.isArray(products) ? products : [];
+
+      // Get category information for products
+      let productsWithCategories = productsArray;
+      
+      if (productsArray && productsArray.length > 0) {
+        try {
+          // Get unique category IDs
+          const categoryIds = [...new Set(productsArray.map(p => p?.category_id).filter(Boolean))];
+          
+          // Fetch categories in batch
+          let categoriesMap = {};
+          if (categoryIds.length > 0) {
+            const { data: categories, error: categoriesError } = await supabaseAdmin
+              .from('categories')
+              .select('id, name, slug')
+              .in('id', categoryIds);
+            
+            if (categoriesError) {
+              console.error('Error fetching categories:', categoriesError);
+              // Continue without category data if fetch fails
+            } else if (categories && Array.isArray(categories)) {
+              categories.forEach(cat => {
+                if (cat && cat.id) {
+                  categoriesMap[cat.id] = cat;
+                }
+              });
+            }
+          }
+
+          // Attach category info to products
+          productsWithCategories = productsArray.map(product => ({
+            ...product,
+            category: product?.category_id ? categoriesMap[product.category_id] || null : null
+          }));
+        } catch (categoryError) {
+          console.error('Error processing categories:', categoryError);
+          // If category processing fails, return products without category data
+          productsWithCategories = productsArray.map(product => ({
+            ...product,
+            category: null
+          }));
+        }
+      }
+
       res.json({
         success: true,
         data: {
-          products: products || [],
-          count: products?.length || 0
+          products: productsWithCategories,
+          count: productsWithCategories.length
         }
       });
     } catch (error) {
-      next(error);
+      console.error('GetProductsByStore Error:', {
+        storeId: req.params?.storeId,
+        error: error.message,
+        stack: error.stack,
+        query: req.query
+      });
+      res.status(500).json({
+        success: false,
+        error: {
+          message: 'Failed to fetch products',
+          details: error.message
+        }
+      });
     }
   },
 
@@ -214,6 +408,7 @@ const productController = {
       const {
         store_id,
         category_id,
+        category, // Support category name as well
         name,
         description,
         short_description,
@@ -282,22 +477,36 @@ const productController = {
         });
       }
 
-      // Verify category exists and belongs to store (if provided)
-      if (category_id) {
-        const { data: category, error: categoryError } = await supabaseAdmin
-          .from('categories')
-          .select('id')
-          .eq('id', category_id)
-          .eq('store_id', store_id)
-          .single();
+      // Handle category - can be either category name (string) or category_id (UUID)
+      let finalCategoryId = null;
+      if (category) {
+        // Category name provided, find or create it
+        finalCategoryId = await findOrCreateCategory(category, store_id);
+      } else if (category_id) {
+        // Check if it's a UUID (category_id) or a category name
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category_id);
+        
+        if (isUUID) {
+          // It's a UUID, verify it exists
+          const { data: existingCategory, error: categoryError } = await supabaseAdmin
+            .from('categories')
+            .select('id')
+            .eq('id', category_id)
+            .eq('store_id', store_id)
+            .single();
 
-        if (categoryError || !category) {
-          return res.status(400).json({
-            success: false,
-            error: {
-              message: 'Category not found or does not belong to this store'
-            }
-          });
+          if (categoryError || !existingCategory) {
+            return res.status(400).json({
+              success: false,
+              error: {
+                message: 'Category not found or does not belong to this store'
+              }
+            });
+          }
+          finalCategoryId = category_id;
+        } else {
+          // It's a category name, find or create it
+          finalCategoryId = await findOrCreateCategory(category_id, store_id);
         }
       }
 
@@ -308,7 +517,7 @@ const productController = {
       // Prepare product data
       const productData = {
         store_id,
-        category_id: category_id || null,
+        category_id: finalCategoryId,
         name: name.trim(),
         slug: uniqueSlug,
         description: description || null,
@@ -761,6 +970,133 @@ const productController = {
       res.json({
         success: true,
         message: 'Product deleted successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // Delete all products for a store
+  deleteAllProducts: async (req, res, next) => {
+    try {
+      const { storeId } = req.params;
+      const userId = req.userId;
+
+      if (!storeId) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Store ID is required'
+          }
+        });
+      }
+
+      // Verify store exists and user owns it
+      const { data: store, error: storeError } = await supabaseAdmin
+        .from('stores')
+        .select('id, owner_id')
+        .eq('id', storeId)
+        .eq('owner_id', userId)
+        .single();
+
+      if (storeError || !store) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            message: 'Store not found or you do not have permission'
+          }
+        });
+      }
+
+      // Get all products for this store
+      const { data: products, error: fetchError } = await supabaseAdmin
+        .from('products')
+        .select('id, name')
+        .eq('store_id', storeId);
+
+      if (fetchError) {
+        return res.status(500).json({
+          success: false,
+          error: {
+            message: 'Failed to fetch products',
+            details: fetchError.message
+          }
+        });
+      }
+
+      if (!products || products.length === 0) {
+        return res.json({
+          success: true,
+          message: 'No products to delete',
+          data: {
+            deleted_count: 0
+          }
+        });
+      }
+
+      // Check which products have orders (cannot be deleted)
+      const productIds = products.map(p => p.id);
+      
+      // Check for products with orders
+      const { data: orderItems, error: orderItemsError } = await supabaseAdmin
+        .from('order_items')
+        .select('product_id')
+        .in('product_id', productIds)
+        .limit(1);
+
+      let productsWithOrders = [];
+      if (!orderItemsError && orderItems && orderItems.length > 0) {
+        // Get unique product IDs that have orders
+        const productIdsWithOrders = [...new Set(orderItems.map(item => item.product_id))];
+        
+        // Archive products with orders instead of deleting
+        if (productIdsWithOrders.length > 0) {
+          const { error: archiveError } = await supabaseAdmin
+            .from('products')
+            .update({ status: 'archived' })
+            .in('id', productIdsWithOrders)
+            .eq('store_id', storeId);
+
+          if (!archiveError) {
+            productsWithOrders = productIdsWithOrders;
+          }
+        }
+      }
+
+      // Delete products without orders
+      const productIdsToDelete = productIds.filter(id => !productsWithOrders.includes(id));
+      
+      let deletedCount = 0;
+      if (productIdsToDelete.length > 0) {
+        const { error: deleteError } = await supabaseAdmin
+          .from('products')
+          .delete()
+          .in('id', productIdsToDelete)
+          .eq('store_id', storeId);
+
+        if (deleteError) {
+          return res.status(500).json({
+            success: false,
+            error: {
+              message: 'Failed to delete products',
+              details: deleteError.message
+            }
+          });
+        }
+
+        deletedCount = productIdsToDelete.length;
+      }
+
+      const archivedCount = productsWithOrders.length;
+
+      res.json({
+        success: true,
+        message: `Deleted ${deletedCount} product(s). ${archivedCount > 0 ? `${archivedCount} product(s) with orders were archived instead.` : ''}`,
+        data: {
+          total_products: products.length,
+          deleted_count: deletedCount,
+          archived_count: archivedCount
+        }
       });
     } catch (error) {
       next(error);

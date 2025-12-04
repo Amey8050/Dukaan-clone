@@ -38,15 +38,42 @@ const homepageController = {
         }
       }
 
-      // Get featured products
-      const { data: featuredProducts, error: featuredError } = await supabaseAdmin
-        .from('products')
-        .select('id, name, price, images, short_description, featured, compare_at_price')
-        .eq('store_id', storeId)
-        .eq('status', 'active')
-        .eq('featured', true)
-        .limit(8)
-        .order('created_at', { ascending: false });
+      // OPTIMIZED: Load independent data in parallel for faster response
+      const [
+        featuredProductsResult,
+        newArrivalsResult,
+        categoriesResult
+      ] = await Promise.all([
+        // Get featured products
+        supabaseAdmin
+          .from('products')
+          .select('id, name, price, images, short_description, featured, compare_at_price')
+          .eq('store_id', storeId)
+          .eq('status', 'active')
+          .eq('featured', true)
+          .limit(8)
+          .order('created_at', { ascending: false }),
+        
+        // Get new arrivals (recently added products)
+        supabaseAdmin
+          .from('products')
+          .select('id, name, price, images, short_description, compare_at_price')
+          .eq('store_id', storeId)
+          .eq('status', 'active')
+          .limit(8)
+          .order('created_at', { ascending: false }),
+        
+        // Get categories
+        supabaseAdmin
+          .from('categories')
+          .select('id, name, slug, image_url')
+          .eq('store_id', storeId)
+          .limit(8)
+      ]);
+
+      const featuredProducts = featuredProductsResult.data || [];
+      const newArrivals = newArrivalsResult.data || [];
+      const categories = categoriesResult.data || [];
 
       // Get popular products (based on sales)
       let popularProducts = [];
@@ -67,7 +94,8 @@ const homepageController = {
           `)
           .eq('orders.store_id', storeId)
           .eq('orders.status', 'delivered')
-          .gte('orders.created_at', daysAgo.toISOString());
+          .gte('orders.created_at', daysAgo.toISOString())
+          .limit(1000); // Limit to prevent huge queries
 
         if (orderItems && orderItems.length > 0) {
           const productSales = {};
@@ -125,12 +153,13 @@ const homepageController = {
           });
 
           if (purchasedProductIds.size > 0) {
-            // Get products in same categories
+            // Get products in same categories (limit to prevent huge queries)
+            const idsArray = Array.from(purchasedProductIds).slice(0, 50); // Limit to 50 products
             const { data: purchasedProducts } = await supabaseAdmin
               .from('products')
               .select('category_id, tags')
-              .in('id', Array.from(purchasedProductIds))
-              .limit(10);
+              .in('id', idsArray)
+              .limit(50);
 
             const categories = new Set(purchasedProducts?.map(p => p.category_id).filter(Boolean) || []);
             const tags = new Set();
@@ -177,21 +206,46 @@ const homepageController = {
         }
       }
 
-      // Get new arrivals (recently added products)
-      const { data: newArrivals, error: newArrivalsError } = await supabaseAdmin
-        .from('products')
-        .select('id, name, price, images, short_description, compare_at_price')
-        .eq('store_id', storeId)
-        .eq('status', 'active')
-        .limit(8)
-        .order('created_at', { ascending: false });
 
-      // Get categories with product counts
-      const { data: categories, error: categoriesError } = await supabaseAdmin
-        .from('categories')
-        .select('id, name, slug, image_url')
-        .eq('store_id', storeId)
-        .limit(8);
+      // Get products grouped by category - OPTIMIZED: Single query instead of N+1
+      const productsByCategory = {};
+      if (categories && categories.length > 0) {
+        const categoryIds = categories.map(cat => cat.id);
+        
+        // Fetch all products for all categories in a single query
+        const { data: allCategoryProducts } = await supabaseAdmin
+          .from('products')
+          .select('id, name, price, images, short_description, featured, compare_at_price, category_id, created_at')
+          .eq('store_id', storeId)
+          .eq('status', 'active')
+          .in('category_id', categoryIds)
+          .order('created_at', { ascending: false });
+
+        // Group products by category
+        const productsMap = new Map();
+        if (allCategoryProducts && allCategoryProducts.length > 0) {
+          allCategoryProducts.forEach(product => {
+            if (!productsMap.has(product.category_id)) {
+              productsMap.set(product.category_id, []);
+            }
+            const categoryProducts = productsMap.get(product.category_id);
+            if (categoryProducts.length < 6) { // Limit to 6 products per category
+              categoryProducts.push(product);
+            }
+          });
+        }
+
+        // Build productsByCategory object
+        categories.forEach(category => {
+          const categoryProducts = productsMap.get(category.id) || [];
+          if (categoryProducts.length > 0) {
+            productsByCategory[category.id] = {
+              category: category,
+              products: categoryProducts
+            };
+          }
+        });
+      }
 
       // Get store statistics (if user is store owner)
       let storeStats = null;
@@ -203,22 +257,23 @@ const homepageController = {
           .single();
 
         if (storeCheck && storeCheck.owner_id === userId) {
-          // Get basic stats
-          const { count: productCount } = await supabaseAdmin
-            .from('products')
-            .select('*', { count: 'exact', head: true })
-            .eq('store_id', storeId)
-            .eq('status', 'active');
-
-          const { count: orderCount } = await supabaseAdmin
-            .from('orders')
-            .select('*', { count: 'exact', head: true })
-            .eq('store_id', storeId)
-            .eq('status', 'delivered');
+          // OPTIMIZED: Get basic stats in parallel
+          const [productCountResult, orderCountResult] = await Promise.all([
+            supabaseAdmin
+              .from('products')
+              .select('id', { count: 'exact', head: true })
+              .eq('store_id', storeId)
+              .eq('status', 'active'),
+            supabaseAdmin
+              .from('orders')
+              .select('id', { count: 'exact', head: true })
+              .eq('store_id', storeId)
+              .eq('status', 'delivered')
+          ]);
 
           storeStats = {
-            total_products: productCount || 0,
-            total_orders: orderCount || 0
+            total_products: productCountResult.count || 0,
+            total_orders: orderCountResult.count || 0
           };
         }
       }
@@ -240,7 +295,8 @@ const homepageController = {
             popular: popularProducts,
             personalized: personalizedRecommendations,
             new_arrivals: newArrivals || [],
-            categories: categories || []
+            categories: categories || [],
+            products_by_category: productsByCategory || {}
           },
           is_authenticated: !!userId,
           is_store_owner: storeStats !== null,

@@ -171,6 +171,18 @@ const inventoryController = {
         console.error('Failed to log inventory change:', logError);
       }
 
+      // Check and notify if stock is low (run asynchronously, don't block response)
+      if (updatedProduct && updatedProduct.track_inventory) {
+        const { checkAndNotifyLowStock } = require('../utils/notificationHelper');
+        checkAndNotifyLowStock(
+          productId,
+          newQuantity,
+          updatedProduct.low_stock_threshold || 5
+        ).catch(err => {
+          console.error(`Failed to check low stock for product ${productId}:`, err);
+        });
+      }
+
       res.json({
         success: true,
         data: {

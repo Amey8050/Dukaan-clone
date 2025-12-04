@@ -230,6 +230,57 @@ const storeController = {
     }
   },
 
+  // Get store by slug
+  getStoreBySlug: async (req, res, next) => {
+    try {
+      const { slug } = req.params;
+      const userId = req.userId; // Optional, from optionalAuth middleware
+
+      console.log('Get store by slug request:', { slug, userId });
+
+      const { data: store, error } = await supabaseAdmin
+        .from('stores')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+
+      if (error || !store) {
+        console.error('Store fetch error (slug):', {
+          slug,
+          userId,
+          error: error?.message,
+          code: error?.code,
+          details: error?.details
+        });
+        return res.status(404).json({
+          success: false,
+          error: {
+            message: 'Store not found'
+          }
+        });
+      }
+
+      // Check if store is active or user is owner
+      if (!store.is_active && store.owner_id !== userId) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            message: 'Store is not available'
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          store
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // Update store
   updateStore: async (req, res, next) => {
     try {
