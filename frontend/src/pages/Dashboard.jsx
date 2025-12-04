@@ -241,7 +241,6 @@ const Dashboard = () => {
                         <span className={`status-badge ${store.is_active ? 'active' : 'inactive'}`}>
                           {store.is_active ? 'Active' : 'Inactive'}
                         </span>
-                        <span className="store-slug">/{store.slug}</span>
                       </div>
                     </div>
                     <div className="store-actions">
