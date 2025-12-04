@@ -45,11 +45,40 @@ const AdminDashboard = () => {
   const [storeSettings, setStoreSettings] = useState({});
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Sidebar open on desktop by default, closed on tablets/mobiles for better responsiveness
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth >= 1024;
+  });
   const [settingsSidebarOpen, setSettingsSidebarOpen] = useState(false);
+  const [newStaffMember, setNewStaffMember] = useState({
+    name: '',
+    email: '',
+    role: 'Manager',
+    permissions: ['orders', 'products']
+  });
+  const [staffFormMessage, setStaffFormMessage] = useState('');
+  const [staffFormError, setStaffFormError] = useState('');
+
+  const normalizeStaffList = (staffData) => {
+    if (!staffData) return [];
+    if (Array.isArray(staffData)) return staffData;
+    if (typeof staffData === 'object') return Object.values(staffData);
+    return [];
+  };
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const staffList = normalizeStaffList(storeSettings.staff);
+
+  const staffRoles = ['Admin', 'Manager', 'Support', 'Viewer'];
+  const staffPermissionOptions = [
+    { id: 'orders', label: 'Orders' },
+    { id: 'products', label: 'Products' },
+    { id: 'inventory', label: 'Inventory' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'marketing', label: 'Marketing' }
+  ];
 
   // Restore active tab from location state if coming back from another page
   useEffect(() => {
@@ -229,6 +258,73 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleStaffPermissionToggle = (permission) => {
+    setNewStaffMember((prev) => {
+      const hasPermission = prev.permissions.includes(permission);
+      return {
+        ...prev,
+        permissions: hasPermission
+          ? prev.permissions.filter((perm) => perm !== permission)
+          : [...prev.permissions, permission]
+      };
+    });
+  };
+
+  const handleAddStaffMember = () => {
+    setStaffFormMessage('');
+    setStaffFormError('');
+
+    if (!newStaffMember.name.trim() || !newStaffMember.email.trim()) {
+      setStaffFormError('Please provide both name and email for the staff member.');
+      return;
+    }
+
+    const currentStaff = normalizeStaffList(storeSettings.staff);
+    const emailExists = currentStaff.some(
+      (member) => member.email.toLowerCase() === newStaffMember.email.trim().toLowerCase()
+    );
+    if (emailExists) {
+      setStaffFormError('A staff member with this email already exists.');
+      return;
+    }
+
+    const staffEntry = {
+      id: Date.now(),
+      name: newStaffMember.name.trim(),
+      email: newStaffMember.email.trim().toLowerCase(),
+      role: newStaffMember.role,
+      permissions: [...newStaffMember.permissions]
+    };
+
+    setStoreSettings((prev) => {
+      const normalized = normalizeStaffList(prev.staff);
+      return {
+        ...prev,
+        staff: [...normalized, staffEntry]
+      };
+    });
+
+    setNewStaffMember({
+      name: '',
+      email: '',
+      role: 'Manager',
+      permissions: ['orders', 'products']
+    });
+    setStaffFormMessage('Staff member added. Click "Save Staff Access" to confirm.');
+  };
+
+  const handleRemoveStaffMember = (id) => {
+    setStoreSettings((prev) => {
+      const normalized = normalizeStaffList(prev.staff);
+      return {
+        ...prev,
+        staff: normalized.filter((member) => member.id !== id)
+      };
+    });
+    setStaffFormMessage('Staff member removed. Click "Save Staff Access" to confirm.');
+    setStaffFormError('');
+  };
+  
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -239,7 +335,11 @@ const AdminDashboard = () => {
       setSettingsLoading(true);
       const result = await settingsService.getSettings(storeId);
       if (result.success) {
-        setStoreSettings(result.data.settings || {});
+        const fetchedSettings = result.data.settings || {};
+        setStoreSettings({
+          ...fetchedSettings,
+          staff: normalizeStaffList(fetchedSettings.staff)
+        });
       }
     } catch (err) {
       console.error('Failed to load settings:', err);
@@ -253,7 +353,11 @@ const AdminDashboard = () => {
       setSavingSettings(true);
       const result = await settingsService.updateSettings(storeId, category, settingsData);
       if (result.success) {
-        setStoreSettings(result.data.settings || {});
+        const updatedSettings = result.data.settings || {};
+        setStoreSettings({
+          ...updatedSettings,
+          staff: normalizeStaffList(updatedSettings.staff)
+        });
         alert('Settings saved successfully!');
       } else {
         alert(result.error?.message || 'Failed to save settings');
@@ -292,6 +396,16 @@ const AdminDashboard = () => {
     );
   }
 
+  const handleSidebarNavClick = (tab) => {
+    setActiveTab(tab);
+    // On small screens (mobile/tablet), close the sidebar after selecting a tab
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setTimeout(() => {
+        setSidebarOpen(false);
+      }, 100); // Small delay to ensure tab change is visible
+    }
+  };
+
   return (
     <div className="admin-dashboard-container">
       {/* Overlay for mobile */}
@@ -304,62 +418,75 @@ const AdminDashboard = () => {
       {/* Sidebar */}
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <h2>{store.name}</h2>
-          <p className="store-slug">/{store.slug}</p>
+          <center>
+
+          <h1>{store.name}</h1>
+          </center>
+          {/* <p className="store-slug">/{store.slug}</p> */}
         </div>
 
         <nav className="sidebar-nav">
           <button
             className={activeTab === 'overview' ? 'active' : ''}
-            onClick={() => setActiveTab('overview')}
+            onClick={() => handleSidebarNavClick('overview')}
           >
             Overview
           </button>
           <button
             className={activeTab === 'products' ? 'active' : ''}
-            onClick={() => setActiveTab('products')}
+            onClick={() => handleSidebarNavClick('products')}
           >
             Products
           </button>
           <button
             className={activeTab === 'orders' ? 'active' : ''}
-            onClick={() => setActiveTab('orders')}
+            onClick={() => handleSidebarNavClick('orders')}
           >
             Orders
           </button>
           <button
             className={activeTab === 'inventory' ? 'active' : ''}
-            onClick={() => setActiveTab('inventory')}
+            onClick={() => handleSidebarNavClick('inventory')}
           >
             Inventory
           </button>
           <button
             className={activeTab === 'analytics' ? 'active' : ''}
-            onClick={() => setActiveTab('analytics')}
+            onClick={() => handleSidebarNavClick('analytics')}
           >
             Analytics
           </button>
           <button
             className={activeTab === 'reports' ? 'active' : ''}
-            onClick={() => setActiveTab('reports')}
+            onClick={() => handleSidebarNavClick('reports')}
           >
             Reports
           </button>
           <button
             className={activeTab === 'insights' ? 'active' : ''}
-            onClick={() => setActiveTab('insights')}
+            onClick={() => handleSidebarNavClick('insights')}
           >
             Insights
           </button>
           <button
-            className={activeTab === 'view-store' ? 'active' : ''}
-            onClick={() => setActiveTab('view-store')}
+            className="view-store-external"
+            onClick={() => {
+              // Open store products page in a new tab
+              const storeUrl = `${window.location.origin}/stores/${storeId}/products`;
+              window.open(storeUrl, '_blank', 'noopener,noreferrer');
+            }}
+            title="Open store products in new tab"
           >
             View Store
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: '8px', display: 'inline-block' }}>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
           </button>
           <button
             className={activeTab === 'settings' ? 'active' : ''}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleSidebarNavClick('settings')}
           >
             Settings
           </button>
@@ -1041,7 +1168,6 @@ const AdminDashboard = () => {
                       {homepageData.store.description && (
                         <p className="store-description">{homepageData.store.description}</p>
                       )}
-                      <p className="store-slug">/{homepageData.store.slug}</p>
                     </div>
                   </div>
                 </header>
@@ -1429,15 +1555,156 @@ const AdminDashboard = () => {
 
                 {settingsCategory === 'staff' && (
                   <div className="settings-section">
-                    <div className="settings-form">
-                      <div className="section-header">
-                        <h3>Staff Accounts</h3>
-                        <button className="primary-button">+ Add Staff Member</button>
+                    <div className="settings-form staff-settings">
+                      <div className="section-header staff-header">
+                        <div>
+                          <h3>Staff Accounts</h3>
+                          <p className="form-hint">Invite teammates to manage orders, products, analytics, and more.</p>
+                        </div>
+                        <div className="staff-actions-inline">
+                          <span>{staffList.length} members</span>
+                          <button
+                            className="secondary-button"
+                            onClick={() => saveSettings('staff', staffList)}
+                            disabled={savingSettings}
+                          >
+                            {savingSettings ? 'Saving...' : 'Save Staff Access'}
+                          </button>
+                        </div>
                       </div>
-                      <div className="empty-state">
-                        <p>No staff members added yet</p>
-                        <p className="form-hint">Add staff members to help manage your store</p>
+
+                      {(staffFormError || staffFormMessage) && (
+                        <div className={`staff-alert ${staffFormError ? 'error' : 'success'}`}>
+                          {staffFormError || staffFormMessage}
+                        </div>
+                      )}
+
+                      <div className="staff-form-grid">
+                        <div className="form-group">
+                          <label>Full Name</label>
+                          <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. Priya Sharma"
+                            value={newStaffMember.name}
+                            onChange={(e) =>
+                              setNewStaffMember((prev) => ({ ...prev, name: e.target.value }))
+                            }
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Email Address</label>
+                          <input
+                            type="email"
+                            className="form-input"
+                            placeholder="staff@store.com"
+                            value={newStaffMember.email}
+                            onChange={(e) =>
+                              setNewStaffMember((prev) => ({ ...prev, email: e.target.value }))
+                            }
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Role</label>
+                          <select
+                            className="form-input"
+                            value={newStaffMember.role}
+                            onChange={(e) =>
+                              setNewStaffMember((prev) => ({ ...prev, role: e.target.value }))
+                            }
+                          >
+                            {staffRoles.map((role) => (
+                              <option key={role} value={role}>
+                                {role}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
+
+                      <div className="staff-permissions">
+                        <p>Permissions</p>
+                        <div className="permissions-chips">
+                          {staffPermissionOptions.map((permission) => {
+                            const active = newStaffMember.permissions.includes(permission.id);
+                            return (
+                              <button
+                                key={permission.id}
+                                type="button"
+                                className={`permission-chip ${active ? 'active' : ''}`}
+                                onClick={() => handleStaffPermissionToggle(permission.id)}
+                              >
+                                {permission.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="staff-form-actions">
+                        <button className="primary-button" type="button" onClick={handleAddStaffMember}>
+                          + Add Staff Member
+                        </button>
+                        <p className="form-hint">New members receive an invite email once you save changes.</p>
+                      </div>
+
+                      <div className="staff-list">
+                        {staffList.length === 0 ? (
+                          <div className="empty-state">
+                            <p>No staff members added yet</p>
+                            <p className="form-hint">Add staff members to help manage your store</p>
+                          </div>
+                        ) : (
+                          staffList.map((member, index) => (
+                            <div key={member.id || member.email || member.name || index} className="staff-card">
+                              <div className="staff-avatar">
+                                {(member.name || member.email || 'U')
+                                  .split(' ')
+                                  .map((part) => part?.[0]?.toUpperCase())
+                                  .filter(Boolean)
+                                  .join('')
+                                  .slice(0, 2) || 'U'}
+                              </div>
+                              <div className="staff-details">
+                                <h4>{member.name}</h4>
+                                <p>{member.email}</p>
+                                <span className="staff-role">{member.role}</span>
+                                <div className="permissions-tags">
+                                  {(member.permissions || []).map((perm) => {
+                                    const label = staffPermissionOptions.find((p) => p.id === perm)?.label || perm;
+                                    return (
+                                      <span key={perm} className="permission-tag">
+                                        {label}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                              <div className="staff-card-actions">
+                                <button
+                                  className="ghost-button"
+                                  type="button"
+                                  onClick={() => handleRemoveStaffMember(member.id)}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {staffList.length > 0 && (
+                        <div className="staff-save-footer">
+                          <button
+                            className="primary-button"
+                            onClick={() => saveSettings('staff', staffList)}
+                            disabled={savingSettings}
+                          >
+                            {savingSettings ? 'Saving...' : 'Save Staff Access'}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
