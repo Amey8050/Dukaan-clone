@@ -2,13 +2,19 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import orderService from '../services/orderService';
-import storeService from '../services/storeService';
+import useStoreBySlug from '../hooks/useStoreBySlug';
 import { formatCurrency } from '../utils/currency';
 import '../components/BackButton.css';
 import './Orders.css';
 
 const Orders = () => {
-  const { storeId } = useParams();
+  const { storeId: storeSlug } = useParams();
+  const {
+    storeId,
+    store: resolvedStore,
+    loading: storeLookupLoading,
+    error: storeLookupError
+  } = useStoreBySlug(storeSlug);
   const [orders, setOrders] = useState([]);
   const [store, setStore] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,21 +25,15 @@ const Orders = () => {
 
   useEffect(() => {
     if (storeId) {
-      loadStore();
       loadOrders();
     }
   }, [storeId, statusFilter]);
 
-  const loadStore = async () => {
-    try {
-      const result = await storeService.getStore(storeId);
-      if (result.success) {
-        setStore(result.data.store);
-      }
-    } catch (err) {
-      console.error('Failed to load store:', err);
+  useEffect(() => {
+    if (resolvedStore) {
+      setStore(resolvedStore);
     }
-  };
+  }, [resolvedStore]);
 
   const loadOrders = async () => {
     try {
@@ -76,6 +76,22 @@ const Orders = () => {
     navigate('/login');
   };
 
+  if (storeLookupLoading || !storeId) {
+    return (
+      <div className="orders-container">
+        <div className="loading">Loading store...</div>
+      </div>
+    );
+  }
+
+  if (storeLookupError) {
+    return (
+      <div className="orders-container">
+        <div className="error-message">{storeLookupError}</div>
+      </div>
+    );
+  }
+
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'pending':
@@ -112,12 +128,11 @@ const Orders = () => {
     <div className="orders-container">
       <header className="orders-header">
         <div className="header-left">
-          <button className="back-button" onClick={() => navigate(`/stores/${storeId}/products`)}>
+        <button className="back-button" onClick={() => navigate(`/stores/${storeSlug}/products`)}>
             ← Back to Products
           </button>
           <div>
             <h1>Orders - {store?.name}</h1>
-            {store && <p className="store-slug">/{store.slug}</p>}
           </div>
         </div>
         <div className="header-actions">
@@ -197,7 +212,7 @@ const Orders = () => {
                         href={`#`}
                         onClick={(e) => {
                           e.preventDefault();
-                          navigate(`/stores/${storeId}/orders/${order.id}`);
+                          navigate(`/stores/${storeSlug}/orders/${order.id}`);
                         }}
                       >
                         {order.order_number}
@@ -247,7 +262,7 @@ const Orders = () => {
                     <td>
                       <button
                         className="view-button"
-                        onClick={() => navigate(`/stores/${storeId}/orders/${order.id}`)}
+                        onClick={() => navigate(`/stores/${storeSlug}/orders/${order.id}`)}
                       >
                         View
                       </button>
