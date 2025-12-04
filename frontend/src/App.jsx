@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import LoadingSpinner from './components/LoadingSpinner';
 import './App.css';
 
@@ -27,7 +28,10 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const EditStore = lazy(() => import('./pages/EditStore'));
+const BulkUpload = lazy(() => import('./pages/BulkUpload'));
 const LandingPage = lazy(() => import('./components/LandingPage/LandingPage'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const Pricing = lazy(() => import('./pages/Pricing'));
 
 function App() {
   return (
@@ -37,6 +41,7 @@ function App() {
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
@@ -93,6 +98,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProductForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/stores/:storeId/products/bulk-upload"
+                element={
+                  <ProtectedRoute>
+                    <BulkUpload />
                   </ProtectedRoute>
                 }
               />
@@ -162,6 +175,14 @@ function App() {
                   <ProtectedRoute>
                     <Notifications />
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <AdminProtectedRoute>
+                    <AdminPanel />
+                  </AdminProtectedRoute>
                 }
               />
             </Routes>

@@ -1,63 +1,551 @@
-/* App-specific styles using design system */
+/* ============================================
+   MODERN APP STYLES - SaaS/Fintech Design
+   Clean, Minimalistic, Professional
+   ============================================ */
+
+/* Enhanced Design System Variables */
+:root {
+  /* Cool Tone Color Palette - SaaS/Fintech */
+  --color-primary-cool: #4f46e5;
+  --color-primary-cool-dark: #4338ca;
+  --color-primary-cool-light: #6366f1;
+  --color-secondary-cool: #64748b;
+  --color-secondary-cool-light: #94a3b8;
+  
+  /* Glassy Background Colors */
+  --color-glass-bg: rgba(255, 255, 255, 0.85);
+  --color-glass-bg-hover: rgba(255, 255, 255, 0.95);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-glass-shadow: rgba(0, 0, 0, 0.06);
+  
+  /* Cool Tone Gradients */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-cool: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+  --gradient-subtle: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  
+  /* Enhanced Shadows */
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08),
+                   0 2px 8px rgba(0, 0, 0, 0.04),
+                   inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-glass-hover: 0 12px 40px rgba(0, 0, 0, 0.12),
+                        0 4px 12px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 1);
+  
+  /* Danger Theme - Elegant Red */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  
+  /* Transitions - Smooth & Refined */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   ROOT CONTAINER
+   ============================================ */
 
 #root {
   min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+  position: relative;
+  
+  /* Cool tone background with subtle gradient */
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* Remove default button styles that might conflict */
+/* ============================================
+   BUTTON RESET & MODERN STYLES
+   ============================================ */
+
 button {
+  /* Reset default styles */
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
   font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  cursor: pointer;
+  
+  /* Modern button base */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm, 8px);
+  
+  /* Typography */
+  font-weight: var(--font-weight-medium, 500);
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: 0.01em;
+  
+  /* Visual */
+  border-radius: var(--radius-lg, 10px);
+  transition: var(--transition-smooth);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  /* Accessibility */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Ensure consistent link styling */
+button:focus-visible {
+  outline: 2px solid var(--color-primary-cool, #4f46e5);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Modern button hover effects */
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+  transition: var(--transition-smooth);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+/* ============================================
+   LINK STYLES - Clean & Modern
+   ============================================ */
+
 a {
   text-decoration: none;
+  color: inherit;
+  transition: var(--transition-smooth);
+  position: relative;
+  display: inline-block;
 }
 
-/* Loading states */
+/* Default link style */
+a:not(.btn):not(button) {
+  color: var(--color-primary-cool, #4f46e5);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Hover effect - subtle underline */
+a:not(.btn):not(button):hover {
+  color: var(--color-primary-cool-dark, #4338ca);
+}
+
+a:not(.btn):not(button)::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary-cool, #4f46e5);
+  transition: width var(--transition-base, 0.3s ease);
+  border-radius: 1px;
+}
+
+a:not(.btn):not(button):hover::after {
+  width: 100%;
+}
+
+/* Focus state for accessibility */
+a:focus-visible {
+  outline: 2px solid var(--color-primary-cool, #4f46e5);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   LOADING STATES - Centered & Animated
+   ============================================ */
+
 .loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-5xl);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-md);
+  flex-direction: column;
+  gap: var(--spacing-lg, 16px);
+  padding: var(--spacing-5xl, 40px);
+  min-height: 200px;
+  color: var(--color-text-secondary, #666666);
+  font-size: var(--font-size-md, 16px);
+  font-weight: var(--font-weight-medium, 500);
 }
 
-/* Error states */
-.error-message {
-  background: #fee;
-  color: var(--color-danger);
-  padding: var(--spacing-lg) var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--spacing-xl);
-  font-size: var(--font-size-base);
-  border-left: 4px solid var(--color-danger);
+/* Loading spinner animation */
+.loading::before {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(79, 70, 229, 0.1);
+  border-top-color: var(--color-primary-cool, #4f46e5);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Alternative loading state with pulse */
+.loading-pulse {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  justify-content: center;
+  gap: var(--spacing-md, 12px);
+  padding: var(--spacing-5xl, 40px);
+  min-height: 200px;
+  color: var(--color-text-secondary, #666666);
+  font-size: var(--font-size-md, 16px);
 }
 
-/* Empty states */
+.loading-pulse::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: var(--color-primary-cool, #4f46e5);
+  border-radius: 50%;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.loading-pulse::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: var(--color-primary-cool, #4f46e5);
+  border-radius: 50%;
+  animation: pulse 1.4s ease-in-out infinite 0.2s;
+  opacity: 0.7;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   ERROR MESSAGES - Elegant Danger Theme
+   ============================================ */
+
+.error-message {
+  background: linear-gradient(135deg, var(--color-danger-50, #fef2f2) 0%, var(--color-danger-100, #fee2e2) 100%);
+  color: var(--color-danger-700, #b91c1c);
+  padding: var(--spacing-lg, 16px) var(--spacing-xl, 20px);
+  border-radius: var(--radius-xl, 12px);
+  margin-bottom: var(--spacing-xl, 20px);
+  font-size: var(--font-size-base, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-relaxed, 1.6);
+  
+  /* Elegant left border */
+  border-left: 4px solid var(--color-danger-600, #dc2626);
+  
+  /* Soft red background with glassy effect */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(0, 0, 0, 0.1)),
+              0 1px 2px rgba(220, 38, 38, 0.1);
+  
+  /* Layout */
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md, 12px);
+  
+  /* Smooth appearance */
+  animation: slideIn 0.3s ease-out;
+  transition: var(--transition-smooth);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.error-message:hover {
+  box-shadow: var(--shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.1)),
+              0 2px 4px rgba(220, 38, 38, 0.15);
+}
+
+/* Error icon (if using icon) */
+.error-message::before {
+  content: '⚠️';
+  font-size: var(--font-size-lg, 18px);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Error message variants */
+.error-message.error-success {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  color: #166534;
+  border-left-color: #16a34a;
+}
+
+.error-message.error-warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  color: #92400e;
+  border-left-color: #f59e0b;
+}
+
+.error-message.error-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1e40af;
+  border-left-color: #3b82f6;
+}
+
+/* ============================================
+   EMPTY STATE - Modern Card Design
+   ============================================ */
+
 .empty-state {
   text-align: center;
-  padding: var(--spacing-6xl) var(--spacing-xl);
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
+  padding: var(--spacing-6xl, 48px) var(--spacing-xl, 20px);
+  
+  /* Modern card look with glassy background */
+  background: var(--gradient-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-3xl, 16px);
+  
+  /* Soft shadows with depth */
+  box-shadow: var(--shadow-glass);
+  
+  /* Spacing & Layout */
+  max-width: 600px;
+  margin: var(--spacing-4xl, 32px) auto;
+  
+  /* Smooth transitions */
+  transition: var(--transition-smooth);
 }
 
+.empty-state:hover {
+  box-shadow: var(--shadow-glass-hover);
+  transform: translateY(-2px);
+}
+
+/* Typography hierarchy */
 .empty-state h2 {
-  margin-bottom: var(--spacing-md);
-  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md, 12px) 0;
+  font-size: var(--font-size-2xl, 22px);
+  font-weight: var(--font-weight-bold, 700);
+  line-height: var(--line-height-tight, 1.2);
+  color: var(--color-text-primary, #000000);
+  letter-spacing: -0.02em;
+}
+
+.empty-state h3 {
+  margin: 0 0 var(--spacing-sm, 8px) 0;
+  font-size: var(--font-size-xl, 20px);
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--line-height-tight, 1.2);
+  color: var(--color-text-primary, #000000);
 }
 
 .empty-state p {
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-3xl);
+  color: var(--color-text-secondary, #666666);
+  font-size: var(--font-size-base, 14px);
+  line-height: var(--line-height-relaxed, 1.6);
+  margin: 0 0 var(--spacing-3xl, 28px) 0;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.empty-state .empty-state-icon {
+  font-size: 64px;
+  margin-bottom: var(--spacing-xl, 20px);
+  opacity: 0.7;
+  filter: grayscale(20%);
+  transition: var(--transition-smooth);
+}
+
+.empty-state:hover .empty-state-icon {
+  opacity: 1;
+  transform: scale(1.05);
+  filter: grayscale(0%);
+}
+
+/* Empty state action button */
+.empty-state .btn,
+.empty-state button {
+  margin-top: var(--spacing-lg, 16px);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Mobile devices */
+@media (max-width: 640px) {
+  #root {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+  
+  .empty-state {
+    padding: var(--spacing-4xl, 32px) var(--spacing-lg, 16px);
+    margin: var(--spacing-2xl, 24px) var(--spacing-lg, 16px);
+    border-radius: var(--radius-xl, 12px);
+  }
+  
+  .empty-state h2 {
+    font-size: var(--font-size-xl, 20px);
+  }
+  
+  .empty-state h3 {
+    font-size: var(--font-size-lg, 18px);
+  }
+  
+  .empty-state p {
+    font-size: var(--font-size-sm, 13px);
+  }
+  
+  .empty-state .empty-state-icon {
+    font-size: 48px;
+  }
+  
+  .error-message {
+    padding: var(--spacing-md, 12px) var(--spacing-lg, 16px);
+    font-size: var(--font-size-sm, 13px);
+    border-radius: var(--radius-lg, 10px);
+  }
+  
+  .loading {
+    padding: var(--spacing-3xl, 28px) var(--spacing-lg, 16px);
+    min-height: 150px;
+    font-size: var(--font-size-sm, 13px);
+  }
+  
+  .loading::before {
+    width: 32px;
+    height: 32px;
+    border-width: 2px;
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .empty-state {
+    padding: var(--spacing-5xl, 40px) var(--spacing-xl, 20px);
+    max-width: 500px;
+  }
+  
+  .empty-state h2 {
+    font-size: var(--font-size-2xl, 22px);
+  }
+}
+
+/* Large screens */
+@media (min-width: 1025px) {
+  .empty-state {
+    padding: var(--spacing-6xl, 48px) var(--spacing-2xl, 24px);
+    max-width: 600px;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible for better accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary-cool, #4f46e5);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* Glassy container utility */
+.glass-container {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl, 12px);
+  box-shadow: var(--shadow-glass);
+  transition: var(--transition-smooth);
+}
+
+.glass-container:hover {
+  box-shadow: var(--shadow-glass-hover);
+  transform: translateY(-2px);
+}
+
+/* Subtle gradient background utility */
+.gradient-bg-subtle {
+  background: var(--gradient-subtle);
+}
+
+/* Cool tone primary utility */
+.text-primary-cool {
+  color: var(--color-primary-cool, #4f46e5);
+}
+
+.bg-primary-cool {
+  background: var(--color-primary-cool, #4f46e5);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  #root {
+    background: white;
+  }
+  
+  .empty-state,
+  .error-message,
+  .loading {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  
+  button,
+  .loading {
+    display: none;
+  }
 }
