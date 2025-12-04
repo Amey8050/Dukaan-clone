@@ -3,12 +3,18 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import productService from '../services/productService';
 import aiService from '../services/aiService';
 import FileUpload from '../components/FileUpload';
+import useStoreBySlug from '../hooks/useStoreBySlug';
 import { formatCurrency } from '../utils/currency';
 import '../components/BackButton.css';
 import './ProductForm.css';
 
 const ProductForm = () => {
-  const { storeId, productId } = useParams();
+  const { storeId: storeSlug, productId } = useParams();
+  const {
+    storeId,
+    loading: storeLookupLoading,
+    error: storeLookupError
+  } = useStoreBySlug(storeSlug);
   const isEditMode = !!productId;
   const navigate = useNavigate();
   const location = useLocation();
@@ -320,7 +326,7 @@ const ProductForm = () => {
       }
 
       if (result.success) {
-        navigate(`/stores/${storeId}/products`);
+        navigate(`/stores/${storeSlug}/products`);
       } else {
         setError(result.error?.message || `Failed to ${isEditMode ? 'update' : 'create'} product`);
       }
@@ -330,6 +336,22 @@ const ProductForm = () => {
       setLoading(false);
     }
   };
+
+  if (storeLookupLoading || !storeId) {
+    return (
+      <div className="product-form-container">
+        <div className="loading">Loading store...</div>
+      </div>
+    );
+  }
+
+  if (storeLookupError) {
+    return (
+      <div className="product-form-container">
+        <div className="error-message">{storeLookupError}</div>
+      </div>
+    );
+  }
 
   if (loadingProduct) {
     return (
@@ -346,9 +368,9 @@ const ProductForm = () => {
           <button className="back-button" onClick={() => {
             const fromDashboard = location.state?.from === 'dashboard';
             if (fromDashboard) {
-              navigate(`/stores/${storeId}/dashboard`, { state: { tab: location.state?.tab || 'products' } });
+              navigate(`/stores/${storeSlug}/dashboard`, { state: { tab: location.state?.tab || 'products' } });
             } else {
-              navigate(`/stores/${storeId}/products`);
+              navigate(`/stores/${storeSlug}/products`);
             }
           }}>
             ← Back
@@ -812,9 +834,9 @@ const ProductForm = () => {
               onClick={() => {
                 const fromDashboard = location.state?.from === 'dashboard';
                 if (fromDashboard) {
-                  navigate(`/stores/${storeId}/dashboard`, { state: { tab: location.state?.tab || 'products' } });
+                  navigate(`/stores/${storeSlug}/dashboard`, { state: { tab: location.state?.tab || 'products' } });
                 } else {
-                  navigate(`/stores/${storeId}/products`);
+                  navigate(`/stores/${storeSlug}/products`);
                 }
               }}
               disabled={loading}

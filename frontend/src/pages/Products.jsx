@@ -1,46 +1,101 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import productService from '../services/productService';
-import storeService from '../services/storeService';
+import homepageService from '../services/homepageService';
+import useStoreBySlug from '../hooks/useStoreBySlug';
 import { formatCurrency } from '../utils/currency';
+import LazyImage from '../components/LazyImage';
 import '../components/BackButton.css';
 import './Product.css';
 
 const Products = () => {
-  const { storeId } = useParams();
+  const { storeId: storeSlug } = useParams();
+  const [searchParams] = useSearchParams();
+  const {
+    storeId,
+    store: resolvedStore,
+    loading: storeLookupLoading,
+    error: storeLookupError
+  } = useStoreBySlug(storeSlug);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [store, setStore] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all'); // all, active, draft, archived
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('recent');
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [viewMode, setViewMode] = useState('categories'); // 'categories' or 'products'
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (storeId) {
-      loadStore();
-      loadProducts();
+    // Get category from URL query params
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategoryId(categoryParam);
+      setViewMode('products');
+    } else {
+      setSelectedCategoryId(null);
+      setViewMode('categories');
     }
-  }, [storeId]);
 
-  const loadStore = async () => {
+    // Get search term from URL query params
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+      setViewMode('products');
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (storeId) {
+      if (selectedCategoryId) {
+        loadProducts();
+      } else {
+        loadCategories();
+      }
+    }
+  }, [storeId, selectedCategoryId]);
+
+  useEffect(() => {
+    if (storeId && viewMode === 'categories') {
+      loadCategories();
+    }
+  }, [storeId, viewMode]);
+
+  useEffect(() => {
+    if (resolvedStore) {
+      setStore(resolvedStore);
+    }
+  }, [resolvedStore]);
+
+  const loadCategories = async () => {
+    if (!storeId) return;
     try {
-      const result = await storeService.getStore(storeId);
-      if (result.success) {
-        setStore(result.data.store);
+      setCategoriesLoading(true);
+      const result = await homepageService.getHomepageData(storeId);
+      if (result.success && result.data?.sections?.categories) {
+        setCategories(result.data.sections.categories);
       }
     } catch (err) {
-      console.error('Failed to load store:', err);
+      console.error('Failed to load categories:', err);
+    } finally {
+      setCategoriesLoading(false);
+      setLoading(false);
     }
   };
 
   const loadProducts = async () => {
+    if (!storeId) return;
     try {
       setLoading(true);
-      const result = await productService.getProductsByStore(storeId);
+      // Pass category_id if selected
+      const params = selectedCategoryId ? { category_id: selectedCategoryId } : {};
+      const result = await productService.getProductsByStore(storeId, params);
       if (result.success) {
         setProducts(result.data.products);
       } else {
@@ -51,6 +106,18 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCategoryClick = (categoryId) => {
+    setSelectedCategoryId(categoryId);
+    setViewMode('products');
+    navigate(`/stores/${storeSlug}/products?category=${categoryId}`);
+  };
+
+  const handleViewAllCategories = () => {
+    setSelectedCategoryId(null);
+    setViewMode('categories');
+    navigate(`/stores/${storeSlug}/products`);
   };
 
   const handleDelete = async (productId, productName) => {
@@ -92,6 +159,49 @@ const Products = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const handleDeleteAll = async () => {
+    if (!storeId) {
+      alert('Store not loaded');
+      return;
+    }
+
+    // Double confirmation for safety
+    const confirmMessage = `⚠️ WARNING: This will delete ALL ${productStats.total} product(s) in this store!\n\nThis action CANNOT be undone.\n\nAre you absolutely sure?`;
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    // Second confirmation
+    const secondConfirm = window.prompt(
+      `Type "DELETE ALL" to confirm deletion of all products:`
+    );
+
+    if (secondConfirm !== 'DELETE ALL') {
+      alert('Deletion cancelled. You must type "DELETE ALL" exactly to confirm.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await productService.deleteAllProducts(storeId);
+      
+      if (result.success) {
+        alert(result.message || `Successfully deleted all products!`);
+        loadProducts(); // Reload products list
+      } else {
+        alert(result.error?.message || 'Failed to delete all products');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error?.message || 
+                          err.message || 
+                          'Failed to delete all products';
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusBadgeClass = (status) => {
@@ -142,7 +252,7 @@ const Products = () => {
         !normalizedSearch ||
         product.name?.toLowerCase().includes(normalizedSearch) ||
         product.short_description?.toLowerCase().includes(normalizedSearch) ||
-        product.category?.toLowerCase().includes(normalizedSearch);
+        (product.category && product.category.name?.toLowerCase().includes(normalizedSearch));
 
       return matchesFilter && matchesSearch;
     });
@@ -172,6 +282,46 @@ const Products = () => {
     return sortedProducts;
   }, [products, filter, searchTerm, sortOption]);
 
+  // Group products by category
+  const productsByCategory = useMemo(() => {
+    if (!displayedProducts || displayedProducts.length === 0) return {};
+    if (selectedCategoryId || searchTerm.trim().length > 0) {
+      // If a category is selected or searching, don't group - show as flat list
+      return null;
+    }
+
+    const grouped = {};
+    displayedProducts.forEach((product) => {
+      const categoryId = product.category_id || 'uncategorized';
+      
+      if (!grouped[categoryId]) {
+        grouped[categoryId] = {
+          category: product.category || { id: 'uncategorized', name: 'Uncategorized' },
+          products: []
+        };
+      }
+      grouped[categoryId].products.push(product);
+    });
+
+    return grouped;
+  }, [displayedProducts, selectedCategoryId, searchTerm]);
+
+  if (storeLookupLoading || !storeId) {
+    return (
+      <div className="products-container">
+        <div className="loading">Loading store...</div>
+      </div>
+    );
+  }
+
+  if (storeLookupError) {
+    return (
+      <div className="products-container">
+        <div className="error-message">{storeLookupError}</div>
+      </div>
+    );
+  }
+
   const filterLabels = {
     all: 'All products',
     active: 'Active products',
@@ -199,25 +349,31 @@ const Products = () => {
           </button>
           <div>
             <h1>{store?.name || 'Products'}</h1>
-            {store && <p className="store-slug">/{store.slug}</p>}
           </div>
         </div>
         <div className="header-actions">
           <button
             className="create-product-button"
-            onClick={() => navigate(`/stores/${storeId}/products/create`)}
+            onClick={() => navigate(`/stores/${storeSlug}/products/bulk-upload`)}
+            style={{ marginRight: 'var(--spacing-md)' }}
+          >
+            📊 Bulk Upload
+          </button>
+          <button
+            className="create-product-button"
+            onClick={() => navigate(`/stores/${storeSlug}/products/create`)}
           >
             + Add Product
           </button>
           <button
             className="inventory-button pill-button"
-            onClick={() => navigate(`/stores/${storeId}/inventory`)}
+            onClick={() => navigate(`/stores/${storeSlug}/inventory`)}
           >
             Inventory
           </button>
           <button
             className="orders-button pill-button"
-            onClick={() => navigate(`/stores/${storeId}/orders`)}
+            onClick={() => navigate(`/stores/${storeSlug}/orders`)}
           >
             Orders
           </button>
@@ -240,20 +396,19 @@ const Products = () => {
                 'Organize inventory, monitor performance, and create beautiful product cards in one place.'}
             </p>
             <div className="store-meta">
-              <span>/{store?.slug || 'store-slug'}</span>
               {store?.industry && <span>{store.industry}</span>}
               <span>{productStats.total} items</span>
             </div>
             <div className="store-hero-actions">
               <button
                 className="ghost-button"
-                onClick={() => navigate(`/stores/${storeId}/dashboard`)}
+                onClick={() => navigate(`/stores/${storeSlug}/dashboard`)}
               >
                 View dashboard
               </button>
               <button
                 className="ghost-button"
-                onClick={() => navigate(`/stores/${storeId}/products/create`)}
+                onClick={() => navigate(`/stores/${storeSlug}/products/create`)}
               >
                 Quick add product
               </button>
@@ -303,6 +458,16 @@ const Products = () => {
             <div className="filter-pill">
               {filterLabels[filter]}
             </div>
+            {productStats.total > 0 && (
+              <button
+                className="delete-all-button"
+                onClick={handleDeleteAll}
+                disabled={loading}
+                title="Delete all products in this store"
+              >
+                🗑️ Delete All Products
+              </button>
+            )}
             {isFilteredView && (
               <button className="clear-filters" onClick={clearFilters}>
                 Clear filters
@@ -357,23 +522,90 @@ const Products = () => {
           </button>
         </div>
 
+        {/* Show Categories View */}
+        {viewMode === 'categories' && (
+          <>
+            {selectedCategoryId && (
+              <div style={{ marginBottom: '24px' }}>
+                <button
+                  className="ghost-button"
+                  onClick={handleViewAllCategories}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                >
+                  ← Back to Categories
+                </button>
+              </div>
+            )}
+            {categoriesLoading ? (
+              <div className="loading">Loading categories...</div>
+            ) : categories.length > 0 ? (
+              <section className="categories-view-section">
+                <h2 style={{ marginBottom: '24px', fontSize: '28px', fontWeight: 700 }}>
+                  Browse by Category
+                </h2>
+                <div className="categories-grid-view">
+                  {categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="category-square-card"
+                      onClick={() => handleCategoryClick(category.id)}
+                    >
+                      <div className="category-square-image">
+                        {category.image_url ? (
+                          <LazyImage src={category.image_url} alt={category.name} />
+                        ) : (
+                          <div className="category-square-placeholder">
+                            <span>{category.name.charAt(0).toUpperCase()}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="category-square-content">
+                        <h3>{category.name}</h3>
+                        <p>View Products →</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : (
+              <div className="empty-state">
+                <h2>No categories yet</h2>
+                <p>Categories will appear here once products are added.</p>
+              </div>
+            )}
+          </>
+        )}
+
         {/* Filter Tabs */}
-        {loading ? (
-          <div className="loading">Loading products...</div>
-        ) : error ? (
-          <div className="error-message">{error}</div>
-        ) : !hasProducts ? (
-          <div className="empty-state">
-            <h2>No products yet</h2>
-            <p>Add your first product to start selling!</p>
-            <button
-              className="create-product-button"
-              onClick={() => navigate(`/stores/${storeId}/products/create`)}
-            >
-              Add Your First Product
-            </button>
-          </div>
-        ) : noResultsAfterFiltering ? (
+        {viewMode === 'products' && (
+          <>
+            {selectedCategoryId && (
+              <div style={{ marginBottom: '24px' }}>
+                <button
+                  className="ghost-button"
+                  onClick={handleViewAllCategories}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                >
+                  ← Back to Categories
+                </button>
+              </div>
+            )}
+            {loading ? (
+              <div className="loading">Loading products...</div>
+            ) : error ? (
+              <div className="error-message">{error}</div>
+            ) : !hasProducts ? (
+              <div className="empty-state">
+                <h2>No products yet</h2>
+                <p>Add your first product to start selling!</p>
+                <button
+                  className="create-product-button"
+                  onClick={() => navigate(`/stores/${storeSlug}/products/create`)}
+                >
+                  Add Your First Product
+                </button>
+              </div>
+            ) : noResultsAfterFiltering ? (
           <div className="empty-state search-empty">
             <h2>No products match your filters</h2>
             <p>Try adjusting the search text or switching the status filter.</p>
@@ -381,7 +613,8 @@ const Products = () => {
               Reset filters
             </button>
           </div>
-        ) : (
+        ) : selectedCategoryId || !productsByCategory || Object.keys(productsByCategory).length === 0 ? (
+          // Show flat grid when a specific category is selected or when searching
           <div className="products-grid">
             {displayedProducts.map((product) => (
               <div key={product.id} className="product-card">
@@ -398,6 +631,9 @@ const Products = () => {
                   )}
                 </div>
                 <div className="product-body">
+                  {product.category && (
+                    <span className="product-category">{product.category.name}</span>
+                  )}
                   <h3 className="product-name">{product.name}</h3>
                   {product.short_description && (
                     <p className="product-description">{product.short_description}</p>
@@ -433,13 +669,13 @@ const Products = () => {
                 <div className="product-actions">
                   <button
                     className="view-button"
-                    onClick={() => navigate(`/stores/${storeId}/products/${product.id}`)}
+                    onClick={() => navigate(`/stores/${storeSlug}/products/${product.id}`)}
                   >
                     View Details
                   </button>
                   <button
                     className="edit-button"
-                    onClick={() => navigate(`/stores/${storeId}/products/${product.id}/edit`)}
+                    onClick={() => navigate(`/stores/${storeSlug}/products/${product.id}/edit`)}
                   >
                     Edit
                   </button>
@@ -453,6 +689,94 @@ const Products = () => {
               </div>
             ))}
           </div>
+        ) : (
+          // Show products organized by category sections
+          <div className="products-by-category">
+            {Object.values(productsByCategory).map((categoryData) => (
+              <div key={categoryData.category.id} className="category-section">
+                <div className="category-section-header">
+                  <h2 className="category-title">{categoryData.category.name}</h2>
+                  <span className="category-count">({categoryData.products.length} products)</span>
+                </div>
+                <div className="products-grid">
+                  {categoryData.products.map((product) => (
+                    <div key={product.id} className="product-card">
+                      <div className="product-image-container">
+                        {product.images && product.images.length > 0 ? (
+                          <img src={product.images[0]} alt={product.name} className="product-image" />
+                        ) : (
+                          <div className="product-image-placeholder">
+                            <span>No Image</span>
+                          </div>
+                        )}
+                        {product.featured && (
+                          <span className="featured-badge">Featured</span>
+                        )}
+                      </div>
+                      <div className="product-body">
+                        {product.category && (
+                          <span className="product-category">{product.category.name}</span>
+                        )}
+                        <h3 className="product-name">{product.name}</h3>
+                        {product.short_description && (
+                          <p className="product-description">{product.short_description}</p>
+                        )}
+                        <div className="product-price">
+                          <span className="price">{formatCurrency(product.price)}</span>
+                          {product.compare_at_price && (
+                            <span className="compare-price">
+                              {formatCurrency(product.compare_at_price)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="product-meta">
+                          <span className={`status-badge ${getStatusBadgeClass(product.status)}`}>
+                            {product.status}
+                          </span>
+                          {product.track_inventory && (
+                            <span className={`inventory ${
+                              product.inventory_quantity === 0 
+                                ? 'stock-out' 
+                                : product.inventory_quantity <= (product.low_stock_threshold || 5)
+                                  ? 'stock-low' 
+                                  : ''
+                            }`}>
+                              Stock: {product.inventory_quantity}
+                              {product.inventory_quantity <= (product.low_stock_threshold || 5) && (
+                                <span className="low-stock-indicator"></span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="product-actions">
+                        <button
+                          className="view-button"
+                          onClick={() => navigate(`/stores/${storeSlug}/products/${product.id}`)}
+                        >
+                          View Details
+                        </button>
+                        <button
+                          className="edit-button"
+                          onClick={() => navigate(`/stores/${storeSlug}/products/${product.id}/edit`)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(product.id, product.name)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        </>
         )}
       </main>
     </div>
