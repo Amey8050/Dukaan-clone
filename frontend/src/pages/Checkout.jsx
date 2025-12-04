@@ -2,13 +2,19 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import useStoreBySlug from '../hooks/useStoreBySlug';
 import orderService from '../services/orderService';
-import { formatCurrency } from '../utils/currency';
+import { formatCurrency, calculateShipping } from '../utils/currency';
 import '../components/BackButton.css';
 import './Checkout.css';
 
 const Checkout = () => {
-  const { storeId } = useParams();
+  const { storeId: storeSlug } = useParams();
+  const {
+    storeId,
+    loading: storeLookupLoading,
+    error: storeLookupError
+  } = useStoreBySlug(storeSlug);
   const { cart, loadCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -71,6 +77,17 @@ const Checkout = () => {
       }));
     }
   }, [user]);
+
+  // Auto-calculate shipping cost when cart changes
+  useEffect(() => {
+    if (cart && cart.subtotal !== undefined) {
+      const shipping = calculateShipping(cart.subtotal);
+      setFormData((prev) => ({
+        ...prev,
+        shipping_cost: shipping,
+      }));
+    }
+  }, [cart]);
 
   const handleShippingChange = (e) => {
     const { name, value } = e.target;
@@ -157,7 +174,7 @@ const Checkout = () => {
 
       if (result.success) {
         // Redirect to order confirmation page
-        navigate(`/stores/${storeId}/orders/${result.data.order.id}/confirmation`);
+        navigate(`/stores/${storeSlug}/orders/${result.data.order.id}/confirmation`);
       } else {
         setError(result.error?.message || 'Failed to create order');
       }
@@ -168,6 +185,22 @@ const Checkout = () => {
     }
   };
 
+  if (storeLookupLoading || !storeId) {
+    return (
+      <div className="checkout-container">
+        <div className="loading">Loading store...</div>
+      </div>
+    );
+  }
+
+  if (storeLookupError) {
+    return (
+      <div className="checkout-container">
+        <div className="error-message">{storeLookupError}</div>
+      </div>
+    );
+  }
+
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="checkout-container">
@@ -176,7 +209,7 @@ const Checkout = () => {
           <p>Add some products before checkout</p>
           <button
             className="shop-button"
-            onClick={() => navigate(`/stores/${storeId}/products`)}
+            onClick={() => navigate(`/stores/${storeSlug}/products`)}
           >
             Browse Products
           </button>
@@ -188,7 +221,7 @@ const Checkout = () => {
   return (
     <div className="checkout-container">
       <header className="checkout-header">
-        <button className="back-button" onClick={() => navigate(`/stores/${storeId}/cart`)}>
+        <button className="back-button" onClick={() => navigate(`/stores/${storeSlug}/cart`)}>
           ← Back to Cart
         </button>
         <h1>Checkout</h1>
@@ -642,7 +675,9 @@ const Checkout = () => {
                 </div>
                 <div className="summary-row">
                   <span>Shipping:</span>
-                  <span>{formatCurrency(formData.shipping_cost)}</span>
+                  <span>
+                    {formData.shipping_cost === 0 ? 'Free' : formatCurrency(formData.shipping_cost)}
+                  </span>
                 </div>
                 <div className="summary-row">
                   <span>Tax:</span>
