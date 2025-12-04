@@ -10,9 +10,21 @@ const getSessionId = () => {
   return sessionId;
 };
 
+// Check if storeId is a valid UUID format
+const isValidUUID = (storeId) => {
+  if (!storeId || typeof storeId !== 'string') return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(storeId);
+};
+
 const analyticsService = {
   // Track analytics event
   trackEvent: async (storeId, eventType, options = {}) => {
+    // Skip tracking if storeId is not a valid UUID (prevents errors for routes like /stores/cart)
+    if (!isValidUUID(storeId)) {
+      return;
+    }
+
     try {
       const { productId, metadata } = options;
       

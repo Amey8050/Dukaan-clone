@@ -31,6 +31,12 @@ const productService = {
     const response = await api.delete(`/api/products/${id}`);
     return response.data;
   },
+
+  // Delete all products for a store
+  deleteAllProducts: async (storeId) => {
+    const response = await api.delete(`/api/products/store/${storeId}/all`);
+    return response.data;
+  },
 };
 
 export default productService;

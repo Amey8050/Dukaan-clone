@@ -40,19 +40,35 @@ api.interceptors.response.use(
             refresh_token: refreshToken,
           });
 
-          const { access_token, refresh_token } = response.data.data.session;
-          localStorage.setItem('access_token', access_token);
-          localStorage.setItem('refresh_token', refresh_token);
+          if (response.data?.data?.session) {
+            const { access_token, refresh_token } = response.data.data.session;
+            localStorage.setItem('access_token', access_token);
+            localStorage.setItem('refresh_token', refresh_token);
 
-          originalRequest.headers.Authorization = `Bearer ${access_token}`;
-          return api(originalRequest);
+            originalRequest.headers.Authorization = `Bearer ${access_token}`;
+            return api(originalRequest);
+          }
         }
       } catch (refreshError) {
-        // Refresh failed, logout user
+        // Refresh failed - only redirect if not during auth initialization
+        // Don't redirect for /api/auth/me calls during initialization
+        const isAuthCheck = originalRequest.url?.includes('/api/auth/me');
+        
+        // Clear tokens but don't redirect during auth initialization
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        
+        // Only redirect if it's not an auth check (to avoid redirect loops)
+        if (!isAuthCheck && !window.location.pathname.includes('/login')) {
+          // Use a small delay to avoid interrupting ongoing requests
+          setTimeout(() => {
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login';
+            }
+          }, 100);
+        }
+        
         return Promise.reject(refreshError);
       }
     }

@@ -19,6 +19,12 @@ const storeService = {
     return response.data;
   },
 
+  // Get store by slug
+  getStoreBySlug: async (slug) => {
+    const response = await api.get(`/api/stores/slug/${slug}`);
+    return response.data;
+  },
+
   // Update store
   updateStore: async (id, storeData) => {
     const response = await api.put(`/api/stores/${id}`, storeData);

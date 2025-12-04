@@ -21,22 +21,41 @@ export const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       try {
         const storedUser = authService.getStoredUser();
+        const accessToken = localStorage.getItem('access_token');
         
-        if (storedUser && authService.isAuthenticated()) {
-          // Verify token is still valid by fetching current user
+        // Only verify token if we have both user and token
+        if (storedUser && accessToken) {
           try {
+            // The API interceptor will automatically refresh the token if needed
             const response = await authService.getCurrentUser();
-            setUser(response.data.user);
+            if (response.success && response.data?.user) {
+              setUser(response.data.user);
+              // Update stored user with latest data
+              localStorage.setItem('user', JSON.stringify(response.data.user));
+            } else {
+              // Invalid response, clear storage
+              authService.logout();
+              setUser(null);
+            }
           } catch (err) {
-            // Token invalid, clear storage
+            // Token invalid or expired - clear storage silently
+            // The API interceptor already tried to refresh, so this means auth failed
             authService.logout();
             setUser(null);
+            // Suppress expected 401 errors during initialization
+            if (err.response?.status !== 401) {
+              console.error('Auth initialization error:', err);
+            }
           }
         } else {
+          // No token or user stored - user is not logged in
           setUser(null);
         }
       } catch (err) {
-        console.error('Auth initialization error:', err);
+        // Only log unexpected errors (not 401s which are expected when not logged in)
+        if (err.response?.status !== 401) {
+          console.error('Auth initialization error:', err);
+        }
         setUser(null);
       } finally {
         setLoading(false);
