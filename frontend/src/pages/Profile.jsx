@@ -455,7 +455,6 @@ const Profile = () => {
                 </div>
                 <div className="store-body">
                   <h3>{store.name}</h3>
-                  <p className="store-slug">/{store.slug}</p>
                   <div className="store-meta">
                     <span className={`status-badge ${store.is_active ? 'active' : 'inactive'}`}>
                       {store.is_active ? 'Active' : 'Inactive'}
