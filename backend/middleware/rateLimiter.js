@@ -2,9 +2,11 @@
 const rateLimit = require('express-rate-limit');
 
 // General API rate limiter
+// More lenient in development mode (higher limits)
+const isDevelopment = process.env.NODE_ENV === 'development';
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: isDevelopment ? 500 : 100, // Higher limit in development (500 vs 100)
   message: {
     success: false,
     error: {

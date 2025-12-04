@@ -71,8 +71,49 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
+// Admin authentication - requires admin role
+const requireAdmin = async (req, res, next) => {
+  try {
+    // First authenticate the user
+    await authenticate(req, res, async () => {
+      const { supabaseAdmin } = require('../utils/supabaseClient');
+      
+      // Get user profile to check role
+      const { data: profile, error: profileError } = await supabaseAdmin
+        .from('user_profiles')
+        .select('role')
+        .eq('id', req.userId)
+        .single();
+      
+      if (profileError || !profile) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            message: 'Access denied - User profile not found'
+          }
+        });
+      }
+      
+      if (profile.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          error: {
+            message: 'Access denied - Admin role required'
+          }
+        });
+      }
+      
+      req.userRole = profile.role;
+      next();
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   authenticate,
-  optionalAuth
+  optionalAuth,
+  requireAdmin
 };
 
