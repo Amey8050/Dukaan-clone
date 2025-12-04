@@ -10,6 +10,7 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 const { securityHeaders, sanitizeBody, sanitizeQuery, preventNoSQLInjection } = require('./middleware/security');
 const routes = require('./routes');
 const { isAIAvailable } = require('./utils/geminiClient');
+const schedulerService = require('./services/schedulerService');
 
 const app = express();
 
@@ -60,7 +61,32 @@ app.use(sanitizeQuery); // Sanitize query parameters
 
 app.use(performanceMonitor); // Performance monitoring
 app.use(logger);
-app.use('/api', apiLimiter); // Apply rate limiting to all API routes
+
+// Apply rate limiting to API routes
+// Exclude certain routes from rate limiting (user's own data, bulk uploads, etc.)
+app.use('/api', (req, res, next) => {
+  // NO RATE LIMITING for:
+  // - Bulk upload routes (needs unlimited processing for 100+ products)
+  // - User's own stores endpoint (frequently accessed, protected by auth)
+  // - Health/status endpoints
+  const excludedPaths = [
+    '/bulk-upload',           // Bulk uploads
+    '/stores/my',             // User's own stores (protected, frequently accessed)
+    '/cart',                  // Cart operations (user's own data)
+    '/auth/me',               // Check auth status (frequently called)
+    '/homepage/store'         // Store homepage (public, cached)
+  ];
+  
+  // Check if this path should be excluded
+  const shouldExclude = excludedPaths.some(path => req.path.startsWith(path));
+  
+  if (shouldExclude) {
+    return next(); // Skip rate limiting
+  }
+  
+  // Apply rate limiting to all other routes
+  apiLimiter(req, res, next);
+});
 
 // Basic route
 app.get('/', (req, res) => {
@@ -85,7 +111,8 @@ app.get('/', (req, res) => {
       promo: '/api/promo',
       notifications: '/api/notifications',
       upload: '/api/upload',
-      analytics: '/api/analytics'
+      analytics: '/api/analytics',
+      bulkUpload: '/api/bulk-upload'
     }
   });
 });
@@ -153,5 +180,8 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📝 Environment: ${config.nodeEnv}`);
   console.log(`🌐 CORS enabled for: ${config.frontendUrl}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
+  
+  // Start scheduler service for automatic tasks (low stock checks, etc.)
+  schedulerService.start();
 });
 
