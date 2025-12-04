@@ -1,84 +1,119 @@
+/* ============================================
+   SCROLLING AD SECTION
+   Premium Infinite Scroll Banner - SaaS/Fintech Style
+   Modern, Smooth, Fully Responsive
+   ============================================ */
+
 .scrolling-ad-container {
   width: 100%;
   overflow: hidden;
-  background: #1a1a1d;
+  
+  /* Dark premium background */
+  background: linear-gradient(180deg,
+    #0f172a 0%,
+    #1e293b 50%,
+    #0f172a 100%
+  );
+  
+  /* Alternative: Solid dark */
+  /* background: #1a1a1d; */
+  
   position: relative;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Subtle texture overlay (optional) */
+.scrolling-ad-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(118, 75, 162, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.scrolling-ad-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   SCROLLING AD BANNER - Main Container
+   ============================================ */
+
 .scrolling-ad-banner {
-  height: 180px;
+  /* Balanced height using design tokens */
+  height: 200px;
+  
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 40px 0;
+  
+  /* Balanced vertical padding using design tokens */
+  padding: var(--spacing-10, 40px) 0;
 }
+
+/* ============================================
+   SCROLLING AD WRAPPER - Overflow Container
+   ============================================ */
 
 .scrolling-ad-wrapper {
   display: flex;
   width: 100%;
   overflow: hidden;
+  position: relative;
 }
+
+/* ============================================
+   SCROLLING AD TRACK - Infinite Scroll Animation
+   ============================================ */
 
 .scrolling-ad-track {
   display: flex;
   align-items: center;
-  gap: 80px;
+  
+  /* Generous gap using design tokens */
+  gap: var(--spacing-16, 64px);
+  
+  /* Infinite scroll animation - smooth linear */
   animation: scroll-left 90s linear infinite;
+  
   white-space: nowrap;
   flex-shrink: 0;
+  
+  /* Performance optimization */
   will-change: transform;
+  
+  /* Smooth rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
+/* Pause animation on hover */
 .scrolling-ad-banner:hover .scrolling-ad-track {
   animation-play-state: paused;
 }
 
-.scrolling-ad-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  cursor: default;
-  transition: opacity 0.3s, filter 0.3s;
-}
-
-.scrolling-ad-logo img {
-  max-height: 120px;
-  max-width: 200px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  filter: grayscale(20%) brightness(1.1);
-  opacity: 0.9;
-  transition: opacity 0.3s, filter 0.3s, transform 0.3s;
-}
-
-.scrolling-ad-logo:hover img {
-  opacity: 1;
-  filter: grayscale(0%) brightness(1.2);
-  transform: scale(1.05);
-}
-
-.logo-placeholder {
-  width: 200px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  font-weight: 500;
-  text-align: center;
-  padding: 0 16px;
-}
+/* ============================================
+   SCROLL LEFT ANIMATION - Infinite Loop
+   ============================================ */
 
 @keyframes scroll-left {
   from {
@@ -89,26 +124,160 @@
   }
 }
 
-/* Responsive adjustments */
+/* ============================================
+   SCROLLING AD LOGO - Individual Logo Container
+   ============================================ */
+
+.scrolling-ad-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  flex-shrink: 0;
+  
+  /* Prevent text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  cursor: default;
+  
+  /* Smooth transitions */
+  transition: var(--transition-base, all 250ms ease);
+  
+  /* Smooth rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* ============================================
+   LOGO IMAGE - Filtered & Styled
+   ============================================ */
+
+.scrolling-ad-logo img {
+  max-height: 120px;
+  max-width: 200px;
+  
+  width: auto;
+  height: auto;
+  
+  object-fit: contain;
+  object-position: center;
+  
+  /* Subtle grayscale and brightness filters */
+  filter: grayscale(20%) brightness(1.1);
+  
+  opacity: 0.85;
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 350ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  
+  display: block;
+}
+
+/* Hover state - full color and scale */
+.scrolling-ad-logo:hover img {
+  opacity: 1;
+  filter: grayscale(0%) brightness(1.2);
+  transform: scale(1.08);
+}
+
+/* ============================================
+   LOGO PLACEHOLDER - Fallback Styling
+   ============================================ */
+
+.logo-placeholder {
+  width: 200px;
+  height: 120px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Glassy dark background */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-lg, 10px);
+  
+  color: rgba(255, 255, 255, 0.7);
+  
+  /* Typography using design system */
+  font-size: var(--font-size-xs, 0.75rem); /* 12px */
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-normal, 1.5);
+  
+  text-align: center;
+  
+  /* Balanced padding using design tokens */
+  padding: 0 var(--spacing-4, 16px);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 250ms ease);
+  
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.logo-placeholder:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Fluid & Adaptive Design
+   ============================================ */
+
+/* Desktop (1200px and below) */
 @media (max-width: 1200px) {
+  .scrolling-ad-banner {
+    height: 180px;
+    padding: var(--spacing-8, 32px) 0;
+  }
+
   .scrolling-ad-track {
-    gap: 60px;
+    gap: var(--spacing-12, 48px);
   }
 
   .scrolling-ad-logo img {
     max-height: 100px;
     max-width: 180px;
   }
+  
+  .logo-placeholder {
+    width: 180px;
+    height: 100px;
+  }
 }
 
+/* Tablet (968px and below) */
 @media (max-width: 968px) {
   .scrolling-ad-banner {
     height: 160px;
-    padding: 30px 0;
+    padding: var(--spacing-8, 32px) 0;
   }
 
   .scrolling-ad-track {
-    gap: 50px;
+    gap: var(--spacing-10, 40px);
+    animation-duration: 80s;
   }
 
   .scrolling-ad-logo img {
@@ -123,14 +292,15 @@
   }
 }
 
+/* Tablet Portrait (768px and below) */
 @media (max-width: 768px) {
   .scrolling-ad-banner {
     height: 150px;
-    padding: 25px 0;
+    padding: var(--spacing-6, 24px) 0;
   }
 
   .scrolling-ad-track {
-    gap: 40px;
+    gap: var(--spacing-8, 32px);
     animation-duration: 75s;
   }
 
@@ -142,18 +312,20 @@
   .logo-placeholder {
     width: 140px;
     height: 80px;
-    font-size: 10px;
+    font-size: var(--font-size-xs, 0.75rem); /* 10px */
+    padding: 0 var(--spacing-3, 12px);
   }
 }
 
+/* Mobile (480px and below) */
 @media (max-width: 480px) {
   .scrolling-ad-banner {
     height: 140px;
-    padding: 20px 0;
+    padding: var(--spacing-5, 20px) 0;
   }
 
   .scrolling-ad-track {
-    gap: 30px;
+    gap: var(--spacing-6, 24px);
     animation-duration: 65s;
   }
 
@@ -161,11 +333,105 @@
     max-height: 70px;
     max-width: 120px;
   }
+  
+  /* Reduce hover scale on mobile for performance */
+  .scrolling-ad-logo:hover img {
+    transform: scale(1.05);
+  }
 
   .logo-placeholder {
     width: 120px;
     height: 70px;
     font-size: 9px;
+    padding: 0 var(--spacing-2, 8px);
+    border-radius: var(--radius-md, 8px);
   }
 }
 
+/* Small Mobile (360px and below) */
+@media (max-width: 360px) {
+  .scrolling-ad-banner {
+    height: 130px;
+    padding: var(--spacing-4, 16px) 0;
+  }
+
+  .scrolling-ad-track {
+    gap: var(--spacing-5, 20px);
+    animation-duration: 60s;
+  }
+
+  .scrolling-ad-logo img {
+    max-height: 60px;
+    max-width: 100px;
+  }
+
+  .logo-placeholder {
+    width: 100px;
+    height: 60px;
+    font-size: 8px;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & PERFORMANCE
+   ============================================ */
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .scrolling-ad-container::before {
+    animation: none;
+    opacity: 0;
+  }
+  
+  .scrolling-ad-track {
+    animation: none;
+  }
+  
+  .scrolling-ad-logo,
+  .scrolling-ad-logo img,
+  .logo-placeholder {
+    transition: none;
+  }
+  
+  .scrolling-ad-logo:hover img,
+  .logo-placeholder:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .scrolling-ad-container {
+    background: #000000;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .scrolling-ad-logo img {
+    filter: contrast(1.2) brightness(1.3);
+  }
+  
+  .logo-placeholder {
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Focus visible improvements */
+.scrolling-ad-logo:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm, 6px);
+  padding: var(--spacing-1, 4px);
+  margin: calc(var(--spacing-1, 4px) * -1);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .scrolling-ad-container {
+    display: none;
+  }
+}

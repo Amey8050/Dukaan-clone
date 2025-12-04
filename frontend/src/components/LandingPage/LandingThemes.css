@@ -1,122 +1,483 @@
+/* ============================================
+   LANDING THEMES SECTION
+   Premium Themes Showcase - SaaS/Fintech Style
+   Modern, Clean, Fully Responsive
+   ============================================ */
+
 .landing-themes {
-  padding: 100px 48px;
-  background: #f5f6f8;
+  /* Light background */
+  background: linear-gradient(180deg,
+    var(--color-bg-secondary, #f8fafc) 0%,
+    var(--color-bg-primary, #ffffff) 50%,
+    var(--color-bg-secondary, #f8fafc) 100%
+  );
+  
+  /* Alternative: Soft gray background */
+  /* background: #f5f6f8; */
+  
+  /* Generous padding using design tokens */
+  padding: var(--spacing-24, 96px) var(--spacing-12, 48px);
+  
+  width: 100%;
+  position: relative;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Subtle background texture (optional) */
+.landing-themes::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 30%, rgba(102, 126, 234, 0.015) 0%, transparent 50%),
+    radial-gradient(circle at 85% 70%, rgba(118, 75, 162, 0.015) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.landing-themes > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   CONTAINER - Centered Max-Width Layout
+   ============================================ */
 
 .themes-container {
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
+/* ============================================
+   SECTION TITLE - Bold Headline
+   ============================================ */
+
 .themes-title {
-  font-size: 42px;
-  font-weight: 700;
+  /* Typography using design system */
+  font-size: var(--font-size-4xl, 2.75rem); /* 44px */
+  font-weight: var(--font-weight-extrabold, 800);
+  line-height: var(--line-height-tight, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.025em);
+  
   text-align: center;
-  margin: 0 0 56px 0;
-  color: #111827;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0 0 calc(var(--spacing-12, 48px) + var(--spacing-2, 8px)) 0;
+  
+  color: var(--color-text-primary, #0f172a);
+  
+  font-family: var(--font-family-display, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Fade-in animation */
+  animation: slideUpFade 0.8s ease-out;
 }
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   THEMES GRID - Three-Column Layout
+   ============================================ */
 
 .themes-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  
+  /* Balanced gap using design tokens */
+  gap: var(--spacing-8, 32px);
+  
+  /* Fade-in animation */
+  opacity: 0;
+  animation: slideUpFade 0.8s ease-out 0.2s both;
 }
+
+/* ============================================
+   THEME CARD - Premium Card Design
+   ============================================ */
 
 .theme-card {
-  background: white;
-  border-radius: 18px;
-  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
-  padding: 20px 20px 28px;
+  background: var(--color-bg-primary, #ffffff);
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-2xl, 20px);
+  
+  /* Soft layered shadows for depth */
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+  
+  /* Balanced padding using design tokens */
+  padding: var(--spacing-5, 20px) var(--spacing-5, 20px) calc(var(--spacing-5, 20px) + var(--spacing-2, 8px));
+  
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  
+  /* Balanced gap using design tokens */
+  gap: var(--spacing-5, 20px);
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 350ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  position: relative;
+  overflow: hidden;
+  
+  /* Smooth rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  cursor: pointer;
 }
 
+/* Hover lift and scale effect */
 .theme-card:hover {
   transform: translateY(-10px) scale(1.01);
-  box-shadow: 0 25px 50px rgba(15, 23, 42, 0.12);
+  
+  /* Enhanced shadow on hover */
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.12),
+    0 12px 24px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
 }
+
+/* ============================================
+   THEME PREVIEW - Image Container
+   ============================================ */
 
 .theme-preview {
   width: 100%;
-  border-radius: 14px;
+  
+  /* Smooth rounded corners using design system */
+  border-radius: var(--radius-xl, 16px);
+  
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+  
+  /* Inset shadow for depth */
+  box-shadow: 
+    inset 0 0 0 1px rgba(0, 0, 0, 0.03),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  
+  position: relative;
+  background: var(--color-bg-secondary, #f8fafc);
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 350ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Maintain aspect ratio */
+  aspect-ratio: 16 / 10;
+}
+
+.theme-card:hover .theme-preview {
+  box-shadow: 
+    inset 0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .theme-preview img {
   width: 100%;
+  height: 100%;
   display: block;
+  
+  /* Maintain aspect ratio and fill container */
   object-fit: cover;
+  object-position: center;
+  
+  /* Smooth zoom transition */
+  transition: transform var(--transition-slow, 350ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
+
+/* Hover zoom effect on image */
+.theme-card:hover .theme-preview img {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   THEME INFO - Text Content Section
+   ============================================ */
 
 .theme-info {
   text-align: center;
+  
+  /* Balanced gap using design tokens */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2, 8px);
 }
+
+/* ============================================
+   THEME NAME - Card Heading
+   ============================================ */
 
 .theme-name {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: #111827;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Typography using design system */
+  font-size: var(--font-size-xl, 1.5rem); /* 24px */
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--line-height-snug, 1.375);
+  letter-spacing: var(--letter-spacing-normal, 0);
+  
+  margin: 0 0 var(--spacing-2, 8px) 0;
+  
+  color: var(--color-text-primary, #0f172a);
+  
+  font-family: var(--font-family-display, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Smooth transition */
+  transition: var(--transition-colors, color 250ms ease);
 }
+
+.theme-card:hover .theme-name {
+  color: var(--color-primary, #667eea);
+}
+
+/* ============================================
+   THEME DESCRIPTION - Supporting Text
+   ============================================ */
 
 .theme-description {
-  font-size: 15px;
-  color: #6b7280;
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 15px */
+  font-weight: var(--font-weight-normal, 400);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-normal, 0);
+  
+  color: var(--color-text-secondary, #64748b);
   margin: 0;
-  line-height: 1.5;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Smooth transition */
+  transition: var(--transition-colors, color 250ms ease);
 }
 
+.theme-card:hover .theme-description {
+  color: var(--color-text-primary, #475569);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Fluid & Adaptive Design
+   ============================================ */
+
+/* Desktop (1024px and below) - Two Columns */
 @media (max-width: 1024px) {
+  .landing-themes {
+    padding: var(--spacing-20, 80px) var(--spacing-8, 32px);
+  }
+  
+  .themes-title {
+    font-size: var(--font-size-3xl, 2.25rem); /* 36px */
+    margin-bottom: var(--spacing-12, 48px);
+  }
+  
   .themes-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-6, 24px);
   }
 }
 
+/* Tablet (768px and below) - Single Column */
 @media (max-width: 768px) {
   .landing-themes {
-    padding: 60px 24px;
+    padding: var(--spacing-16, 64px) var(--spacing-6, 24px);
   }
 
   .themes-title {
-    font-size: 32px;
+    font-size: var(--font-size-2xl, 1.875rem); /* 30px */
+    line-height: var(--line-height-tight, 1.2);
+    margin-bottom: var(--spacing-10, 40px);
   }
 
   .themes-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: var(--spacing-6, 24px);
+  }
+  
+  .theme-card {
+    padding: var(--spacing-4, 16px) var(--spacing-4, 16px) calc(var(--spacing-4, 16px) + var(--spacing-2, 8px));
+    gap: var(--spacing-4, 16px);
   }
 }
 
+/* Mobile (480px and below) */
 @media (max-width: 480px) {
   .landing-themes {
-    padding: 40px 16px;
+    padding: var(--spacing-12, 48px) var(--spacing-4, 16px);
   }
 
   .themes-title {
-    font-size: 24px;
-    margin-bottom: 40px;
+    font-size: var(--font-size-xl, 1.5rem); /* 24px */
+    line-height: var(--line-height-snug, 1.375);
+    margin-bottom: var(--spacing-10, 40px);
   }
 
   .themes-grid {
-    gap: 20px;
+    gap: var(--spacing-5, 20px);
   }
 
   .theme-card {
-    padding: 16px 16px 24px;
+    padding: var(--spacing-4, 16px) var(--spacing-4, 16px) calc(var(--spacing-4, 16px) + var(--spacing-2, 8px));
+    gap: var(--spacing-4, 16px);
+    border-radius: var(--radius-xl, 16px);
+  }
+  
+  /* Reduce hover effects on mobile for performance */
+  .theme-card:hover {
+    transform: translateY(-6px) scale(1.005);
+  }
+  
+  .theme-card:hover .theme-preview img {
+    transform: scale(1.03);
   }
 
   .theme-name {
-    font-size: 20px;
+    font-size: var(--font-size-lg, 1.25rem); /* 20px */
+    margin-bottom: var(--spacing-1, 4px);
   }
 
   .theme-description {
-    font-size: 14px;
+    font-size: var(--font-size-sm, 0.875rem); /* 14px */
+    line-height: var(--line-height-normal, 1.5);
+  }
+  
+  .theme-preview {
+    border-radius: var(--radius-lg, 10px);
   }
 }
 
+/* Small Mobile (360px and below) */
+@media (max-width: 360px) {
+  .landing-themes {
+    padding: var(--spacing-10, 40px) var(--spacing-3, 12px);
+  }
+
+  .themes-title {
+    font-size: var(--font-size-lg, 1.25rem); /* 20px */
+    margin-bottom: var(--spacing-8, 32px);
+  }
+
+  .themes-grid {
+    gap: var(--spacing-4, 16px);
+  }
+  
+  .theme-card {
+    padding: var(--spacing-3, 12px) var(--spacing-3, 12px) calc(var(--spacing-3, 12px) + var(--spacing-2, 8px));
+  }
+  
+  .theme-name {
+    font-size: var(--font-size-md, 1.125rem); /* 18px */
+  }
+  
+  .theme-description {
+    font-size: var(--font-size-xs, 0.75rem); /* 12px */
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & PERFORMANCE
+   ============================================ */
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .landing-themes::before,
+  .themes-title,
+  .themes-grid,
+  .theme-card,
+  .theme-preview,
+  .theme-preview img {
+    animation: none;
+    transition: none;
+  }
+  
+  .theme-card:hover,
+  .theme-card:hover .theme-preview img {
+    transform: none;
+  }
+  
+  .landing-themes::before {
+    opacity: 0;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .theme-card {
+    border: 2px solid var(--color-border-medium, #cbd5e1);
+  }
+  
+  .themes-title {
+    font-weight: var(--font-weight-extrabold, 800);
+  }
+  
+  .theme-preview {
+    border: 2px solid var(--color-border-light, #e2e8f0);
+  }
+}
+
+/* Focus visible improvements */
+.theme-card:focus-visible {
+  outline: 3px solid var(--color-primary, #667eea);
+  outline-offset: 4px;
+  border-radius: var(--radius-2xl, 20px);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .landing-themes {
+    background: white;
+    padding: var(--spacing-8, 32px) 0;
+  }
+  
+  .theme-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: var(--spacing-6, 24px);
+  }
+  
+  .theme-preview {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+}

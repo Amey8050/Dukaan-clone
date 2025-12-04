@@ -1,127 +1,669 @@
+/* ============================================
+   LANDING FOOTER
+   Premium Dark Footer - SaaS/Fintech Style
+   Elegant, Minimal, High-End Design
+   ============================================ */
+
 .landing-footer {
-  background: #000;
-  color: white;
-  padding: 80px 48px 32px;
+  /* Sleek black background */
+  background: linear-gradient(180deg,
+    #0f172a 0%,
+    #0b0c10 50%,
+    #000000 100%
+  );
+  
+  /* Alternative: Pure black */
+  /* background: #000000; */
+  
+  color: var(--dark-color-text-primary, #ffffff);
+  
+  /* Generous padding using design tokens */
+  padding: var(--spacing-20, 80px) var(--spacing-12, 48px) var(--spacing-8, 32px);
+  
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Subtle texture overlay */
+.landing-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(252, 211, 77, 0.015) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.landing-footer > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   CONTAINER - Centered Max-Width Layout
+   ============================================ */
 
 .footer-container {
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
+
+/* ============================================
+   FOOTER CTA - Call-to-Action Section
+   ============================================ */
 
 .footer-cta {
   text-align: center;
-  margin-bottom: 80px;
-  padding-bottom: 80px;
-  border-bottom: 1px solid #333;
+  margin-bottom: var(--spacing-20, 80px);
+  padding-bottom: var(--spacing-20, 80px);
+  
+  /* Clean separator using design system */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Fade-in animation */
+  opacity: 0;
+  animation: slideUpFade 0.8s ease-out 0.2s forwards;
 }
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   CTA TITLE - Bold Modern Typography
+   ============================================ */
 
 .footer-cta-title {
-  font-size: 42px;
-  font-weight: 700;
-  margin: 0 0 16px 0;
-  color: white;
+  /* Typography using design system */
+  font-size: var(--font-size-4xl, 2.75rem); /* 44px */
+  font-weight: var(--font-weight-extrabold, 800);
+  line-height: var(--line-height-tight, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.025em);
+  
+  margin: 0 0 var(--spacing-4, 16px) 0;
+  
+  color: var(--dark-color-text-primary, #ffffff);
+  
+  font-family: var(--font-family-display, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  
+  /* Subtle text glow for premium feel */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================
+   CTA SUBTITLE - Soft Clean Text
+   ============================================ */
 
 .footer-cta-subtitle {
-  font-size: 18px;
-  color: #ccc;
-  margin: 0 0 32px 0;
+  /* Typography using design system */
+  font-size: var(--font-size-md, 1.125rem); /* 18px */
+  font-weight: var(--font-weight-normal, 400);
+  line-height: var(--line-height-relaxed, 1.625);
+  letter-spacing: var(--letter-spacing-normal, 0);
+  
+  color: rgba(255, 255, 255, 0.8);
+  
+  margin: 0 0 var(--spacing-8, 32px) 0;
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================
+   CTA BUTTON - Pill Button with Hover
+   ============================================ */
 
 .footer-cta-button {
-  background: white;
-  color: #000;
+  /* High-contrast white button */
+  background: var(--color-bg-primary, #ffffff);
+  color: var(--color-text-primary, #000000);
+  
   border: none;
-  padding: 16px 40px;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
+  
+  /* Pill-shaped button */
+  border-radius: var(--radius-full, 9999px);
+  
+  /* Balanced padding using design tokens */
+  padding: var(--spacing-4, 16px) var(--spacing-10, 40px);
+  
+  /* Typography using design system */
+  font-size: var(--font-size-md, 1.125rem); /* 18px */
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-wide, 0.025em);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
   cursor: pointer;
-  transition: background 0.3s;
+  
+  /* Soft shadow */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+  
+  /* Smooth transitions using design system */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  /* Minimum touch target size */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Accessibility */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.footer-cta-button:hover {
-  background: #f0f0f0;
+/* Hover state - lift + shadow enhancement */
+.footer-cta-button:hover:not(:disabled) {
+  background: var(--color-bg-hover, #f8f9fa);
+  transform: translateY(-2px);
+  
+  /* Enhanced shadow on hover */
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.25),
+    0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* Active state - press effect */
+.footer-cta-button:active:not(:disabled) {
+  transform: translateY(0);
+  transition: all 100ms ease;
+  
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus state for accessibility */
+.footer-cta-button:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 3px;
+  
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+/* Disabled state */
+.footer-cta-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================
+   FOOTER LINKS - Multi-Column Grid
+   ============================================ */
 
 .footer-links {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 48px;
-  margin-bottom: 64px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  
+  /* Balanced gap using design tokens */
+  gap: var(--spacing-12, 48px);
+  
+  margin-bottom: var(--spacing-16, 64px);
+  
+  /* Fade-in animation */
+  opacity: 0;
+  animation: slideUpFade 0.8s ease-out 0.4s forwards;
 }
 
-.footer-column-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 24px 0;
-  color: white;
-}
+/* ============================================
+   FOOTER COLUMN - Link Group
+   ============================================ */
 
 .footer-column {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  
+  /* Refined spacing using design tokens */
+  gap: var(--spacing-4, 16px);
 }
+
+/* ============================================
+   FOOTER COLUMN TITLE - Section Heading
+   ============================================ */
+
+.footer-column-title {
+  /* Typography using design system */
+  font-size: var(--font-size-md, 1.125rem); /* 18px */
+  font-weight: var(--font-weight-bold, 700);
+  line-height: var(--line-height-normal, 1.5);
+  letter-spacing: var(--letter-spacing-wide, 0.025em);
+  
+  margin: 0 0 var(--spacing-6, 24px) 0;
+  
+  color: var(--dark-color-text-primary, #ffffff);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  /* Uppercase for section headers */
+  text-transform: uppercase;
+  font-size: var(--font-size-xs, 0.75rem); /* 12px */
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   FOOTER COLUMN LINKS - Clean Link Styling
+   ============================================ */
 
 .footer-column a {
-  color: #ccc;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  font-size: 16px;
-  transition: color 0.3s;
+  
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-normal, 400);
+  line-height: var(--line-height-relaxed, 1.625);
+  letter-spacing: var(--letter-spacing-normal, 0);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  /* Smooth transitions */
+  transition: var(--transition-colors, color 250ms ease);
+  
+  /* Touch-friendly target size */
+  padding: var(--spacing-1, 4px) 0;
+  
+  /* Position relative for underline effect */
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  
+  /* Smooth rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.footer-column a:hover {
-  color: white;
+/* Underline animation on hover */
+.footer-column a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-primary, #667eea);
+  transition: width var(--transition-base, 250ms ease);
 }
+
+/* Hover & Focus States - slight color shift */
+.footer-column a:hover,
+.footer-column a:focus-visible {
+  color: var(--dark-color-text-primary, #ffffff);
+}
+
+.footer-column a:hover::after,
+.footer-column a:focus-visible::after {
+  width: 100%;
+}
+
+/* Focus visible for accessibility */
+.footer-column a:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   FOOTER SOCIAL - Social Media Links
+   ============================================ */
 
 .footer-social {
   display: flex;
-  gap: 16px;
-  margin-top: 8px;
+  gap: var(--spacing-4, 16px);
+  margin-top: var(--spacing-2, 8px);
+  flex-wrap: wrap;
 }
+
+.footer-social a {
+  width: 40px;
+  height: 40px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Circular social button */
+  border-radius: var(--radius-full, 50%);
+  
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  color: rgba(255, 255, 255, 0.8);
+  
+  /* Smooth transitions */
+  transition: var(--transition-all, all 250ms cubic-bezier(0.4, 0, 0.2, 1));
+  
+  /* Smooth rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.footer-social a:hover,
+.footer-social a:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--dark-color-text-primary, #ffffff);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.footer-social a:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   FOOTER BOTTOM - Copyright & Metadata
+   ============================================ */
 
 .footer-bottom {
   text-align: center;
-  padding-top: 32px;
-  border-top: 1px solid #333;
-  color: #999;
-  font-size: 14px;
+  padding-top: var(--spacing-8, 32px);
+  
+  /* Clean separator using design system */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  color: rgba(255, 255, 255, 0.6);
+  
+  /* Typography using design system */
+  font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  font-weight: var(--font-weight-normal, 400);
+  line-height: var(--line-height-normal, 1.5);
+  
+  font-family: var(--font-family-primary, system-ui, -apple-system, sans-serif);
+  
+  /* Fade-in animation */
+  opacity: 0;
+  animation: slideUpFade 0.8s ease-out 0.6s forwards;
 }
 
 .footer-bottom p {
-  margin: 8px 0;
+  margin: var(--spacing-2, 8px) 0;
+  color: rgba(255, 255, 255, 0.6);
+  
+  transition: var(--transition-colors, color 250ms ease);
 }
 
+.footer-bottom p:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Fluid & Adaptive Design
+   ============================================ */
+
+/* Desktop (1024px and below) - 2 columns */
 @media (max-width: 1024px) {
+  .landing-footer {
+    padding: var(--spacing-20, 80px) var(--spacing-8, 32px) var(--spacing-8, 32px);
+  }
+  
+  .footer-cta {
+    margin-bottom: var(--spacing-16, 64px);
+    padding-bottom: var(--spacing-16, 64px);
+  }
+  
+  .footer-cta-title {
+    font-size: var(--font-size-3xl, 2.25rem); /* 36px */
+  }
+  
+  .footer-cta-subtitle {
+    font-size: var(--font-size-base, 1rem); /* 16px */
+  }
+
   .footer-links {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-10, 40px);
   }
 }
 
+/* Tablet (768px and below) - Single column */
 @media (max-width: 768px) {
   .landing-footer {
-    padding: 60px 24px 24px;
+    padding: var(--spacing-16, 64px) var(--spacing-6, 24px) var(--spacing-6, 24px);
   }
 
   .footer-cta {
-    margin-bottom: 60px;
-    padding-bottom: 60px;
+    margin-bottom: var(--spacing-16, 64px);
+    padding-bottom: var(--spacing-16, 64px);
   }
 
   .footer-cta-title {
-    font-size: 32px;
+    font-size: var(--font-size-2xl, 1.875rem); /* 30px */
+    line-height: var(--line-height-tight, 1.2);
+    margin-bottom: var(--spacing-3, 12px);
   }
 
   .footer-cta-subtitle {
-    font-size: 16px;
+    font-size: var(--font-size-sm, 0.875rem); /* 14px */
+    line-height: var(--line-height-relaxed, 1.625);
+    margin-bottom: var(--spacing-6, 24px);
+  }
+  
+  .footer-cta-button {
+    padding: var(--spacing-3, 12px) var(--spacing-8, 32px);
+    font-size: var(--font-size-base, 1rem); /* 16px */
+    min-height: 40px;
   }
 
   .footer-links {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: var(--spacing-8, 32px);
+    margin-bottom: var(--spacing-12, 48px);
+  }
+  
+  .footer-column {
+    gap: var(--spacing-3, 12px);
+  }
+  
+  .footer-column-title {
+    margin-bottom: var(--spacing-4, 16px);
+  }
+  
+  .footer-social {
+    justify-content: center;
   }
 }
 
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .landing-footer {
+    padding: var(--spacing-12, 48px) var(--spacing-4, 16px) var(--spacing-4, 16px);
+  }
 
+  .footer-cta {
+    margin-bottom: var(--spacing-12, 48px);
+    padding-bottom: var(--spacing-12, 48px);
+  }
+
+  .footer-cta-title {
+    font-size: var(--font-size-xl, 1.5rem); /* 24px */
+    margin-bottom: var(--spacing-2, 8px);
+  }
+
+  .footer-cta-subtitle {
+    font-size: var(--font-size-xs, 0.75rem); /* 12px */
+    margin-bottom: var(--spacing-5, 20px);
+  }
+  
+  .footer-cta-button {
+    width: 100%;
+    max-width: 280px;
+    padding: var(--spacing-3, 12px) var(--spacing-6, 24px);
+    font-size: var(--font-size-sm, 0.875rem); /* 14px */
+  }
+
+  .footer-links {
+    gap: var(--spacing-6, 24px);
+    margin-bottom: var(--spacing-10, 40px);
+  }
+  
+  .footer-column-title {
+    font-size: 11px;
+    margin-bottom: var(--spacing-3, 12px);
+  }
+  
+  .footer-column a {
+    font-size: var(--font-size-xs, 0.75rem); /* 12px */
+    padding: 2px 0;
+  }
+  
+  .footer-social a {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Small Mobile (360px and below) */
+@media (max-width: 360px) {
+  .footer-cta-title {
+    font-size: var(--font-size-lg, 1.25rem); /* 20px */
+  }
+  
+  .footer-cta-subtitle {
+    font-size: 11px;
+  }
+  
+  .footer-cta-button {
+    padding: var(--spacing-2, 8px) var(--spacing-5, 20px);
+    font-size: var(--font-size-xs, 0.75rem); /* 12px */
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & PERFORMANCE
+   ============================================ */
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .footer-cta,
+  .footer-links,
+  .footer-bottom {
+    animation: none;
+  }
+  
+  .footer-column a,
+  .footer-cta-button,
+  .footer-social a {
+    transition: none;
+  }
+  
+  .footer-cta-button:hover:not(:disabled),
+  .footer-social a:hover {
+    transform: none;
+  }
+  
+  .landing-footer::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .landing-footer {
+    background: #000000;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .footer-cta {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .footer-bottom {
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .footer-column-title {
+    font-weight: var(--font-weight-bold, 700);
+  }
+  
+  .footer-cta-button {
+    border: 2px solid #ffffff;
+  }
+}
+
+/* Focus visible improvements */
+*:focus-visible {
+  outline: 2px solid var(--color-primary, #667eea);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .landing-footer {
+    background: white;
+    color: black;
+    padding: var(--spacing-8, 32px) 0;
+  }
+  
+  .footer-cta,
+  .footer-social {
+    display: none;
+  }
+  
+  .footer-column a {
+    color: black;
+    text-decoration: underline;
+  }
+  
+  .footer-bottom {
+    border-top: 1px solid #e2e8f0;
+    color: #475569;
+  }
+}
