@@ -7,7 +7,7 @@ import '../components/BackButton.css';
 import './Orders.css';
 
 const OrderDetail = () => {
-  const { storeId, orderId } = useParams();
+  const { storeId: storeSlug, orderId } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -74,7 +74,8 @@ const OrderDetail = () => {
     return (
       <div className="order-detail-container">
         <div className="error-message">{error || 'Order not found'}</div>
-        <button className="back-button" onClick={() => navigate(`/stores/${storeId}/orders`)}>
+        <button className="back-button" onClick={() => navigate(`/stores/${storeSlug}/orders`)}>
+            <button className="back-button" onClick={() => navigate(`/stores/${storeSlug}/orders`)}>
           Back to Orders
         </button>
       </div>
@@ -87,7 +88,7 @@ const OrderDetail = () => {
         <div className="header-left">
           <button
             className="back-button"
-            onClick={() => navigate(`/stores/${storeId}/orders`)}
+            onClick={() => navigate(`/stores/${storeSlug}/orders`)}
           >
             ← Back to Orders
           </button>
