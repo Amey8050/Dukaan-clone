@@ -70,7 +70,7 @@ const LandingFeatures = () => {
                   {feature.items.map((item, itemIndex) => (
                     <li key={itemIndex} className="feature-item">
                       <span className="sparkle-icon">✦</span>
-                      <span>{item}</span>
+                      <span style={{ color: '#000000' }}>{item}</span>
                     </li>
                   ))}
                 </ul>
