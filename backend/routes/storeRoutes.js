@@ -17,6 +17,9 @@ router.put('/:id', validateUUID('id'), authenticate, storeController.updateStore
 // DELETE /api/stores/:id - Delete store (protected)
 router.delete('/:id', validateUUID('id'), authenticate, storeController.deleteStore);
 
+// GET /api/stores/slug/:slug - Get store by slug (public, but checks if active)
+router.get('/slug/:slug', optionalAuth, storeController.getStoreBySlug);
+
 // GET /api/stores/:id - Get store by ID (public, but checks if active)
 router.get('/:id', validateUUID('id'), optionalAuth, storeController.getStore);
 

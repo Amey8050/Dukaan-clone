@@ -17,6 +17,9 @@ router.put('/:id', validateUUID('id'), authenticate, productController.updatePro
 // DELETE /api/products/:id - Delete product (protected)
 router.delete('/:id', validateUUID('id'), authenticate, productController.deleteProduct);
 
+// DELETE /api/products/store/:storeId/all - Delete all products for a store (protected)
+router.delete('/store/:storeId/all', validateUUID('storeId'), authenticate, productController.deleteAllProducts);
+
 // GET /api/products/:id - Get product by ID (public) - Must be last to avoid route conflicts
 router.get('/:id', (req, res, next) => {
   console.log('\n🔍 Product route middleware hit:', { 

@@ -20,6 +20,9 @@ const notificationRoutes = require('./notificationRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const testRoutes = require('./testRoutes');
 const settingsRoutes = require('./settingsRoutes');
+const bulkUploadRoutes = require('./bulkUploadRoutes');
+const adminRoutes = require('./adminRoutes');
+const schedulerRoutes = require('./schedulerRoutes');
 
 // API Routes
 router.use('/api/auth', authRoutes);
@@ -40,6 +43,9 @@ router.use('/api/notifications', notificationRoutes);
 router.use('/api/upload', uploadRoutes);
 router.use('/api/test', testRoutes);
 router.use('/api/settings', settingsRoutes);
+router.use('/api/bulk-upload', bulkUploadRoutes);
+router.use('/api/admin', adminRoutes);
+router.use('/api/scheduler', schedulerRoutes);
 
 module.exports = router;
 
