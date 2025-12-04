@@ -184,7 +184,6 @@ const StoreHomepage = () => {
           <div className="store-info">
             <h1>{store.name}</h1>
             {store.description && <p className="store-description">{store.description}</p>}
-            <p className="store-slug">/{store.slug}</p>
           </div>
         </div>
       </header>
@@ -241,6 +240,20 @@ const StoreHomepage = () => {
           title="Featured Products"
           products={sections.featured}
         />
+
+        {/* Products by Category - Show products organized by their categories */}
+        {sections.products_by_category && Object.keys(sections.products_by_category).length > 0 && (
+          <>
+            {Object.values(sections.products_by_category).map((categoryData) => (
+              <ProductSection
+                key={categoryData.category.id}
+                title={categoryData.category.name}
+                products={categoryData.products}
+                emptyMessage={`No products in ${categoryData.category.name} category`}
+              />
+            ))}
+          </>
+        )}
 
         {/* Popular Products */}
         <ProductSection
