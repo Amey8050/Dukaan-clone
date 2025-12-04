@@ -121,11 +121,82 @@ const createSystemNotification = async (userId, title, message, link) => {
   });
 };
 
+/**
+ * Check if product is low stock and create notification if needed
+ * Automatically checks inventory and creates notification when stock goes low
+ * @param {string} productId - Product ID
+ * @param {number} currentQuantity - Current inventory quantity
+ * @param {number} lowStockThreshold - Low stock threshold
+ * @returns {Promise<Object>} Result of notification creation
+ */
+const checkAndNotifyLowStock = async (productId, currentQuantity, lowStockThreshold) => {
+  try {
+    // Check if stock is low
+    if (currentQuantity > lowStockThreshold) {
+      return { success: false, message: 'Stock is not low', shouldNotify: false };
+    }
+
+    // Get product details to find store owner
+    const { data: product, error: productError } = await supabaseAdmin
+      .from('products')
+      .select(`
+        id,
+        name,
+        store_id,
+        stores!inner (
+          id,
+          owner_id
+        )
+      `)
+      .eq('id', productId)
+      .single();
+
+    if (productError || !product || !product.stores) {
+      console.error('Failed to fetch product for low stock notification:', productError);
+      return { success: false, error: productError?.message || 'Product not found' };
+    }
+
+    const storeOwnerId = product.stores.owner_id;
+    const storeId = product.stores.id;
+
+    // Check if notification already exists for this product (avoid duplicates)
+    const { data: existingNotifications } = await supabaseAdmin
+      .from('notifications')
+      .select('id')
+      .eq('user_id', storeOwnerId)
+      .eq('store_id', storeId)
+      .eq('type', 'inventory')
+      .eq('is_read', false)
+      .like('message', `%${product.name}%`)
+      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Within last 24 hours
+      .limit(1);
+
+    // Only create notification if one doesn't already exist recently
+    if (existingNotifications && existingNotifications.length > 0) {
+      return { success: true, message: 'Notification already exists', shouldNotify: false };
+    }
+
+    // Create low stock notification
+    const result = await createLowStockNotification(
+      storeOwnerId,
+      storeId,
+      product.name,
+      currentQuantity
+    );
+
+    return { ...result, shouldNotify: true };
+  } catch (error) {
+    console.error('Check and notify low stock error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   createNotification,
   createOrderNotification,
   createLowStockNotification,
   createPromotionNotification,
-  createSystemNotification
+  createSystemNotification,
+  checkAndNotifyLowStock
 };
 
