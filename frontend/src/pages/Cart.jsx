@@ -2,12 +2,18 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { formatCurrency } from '../utils/currency';
+import useStoreBySlug from '../hooks/useStoreBySlug';
+import { formatCurrency, calculateShipping } from '../utils/currency';
 import '../components/BackButton.css';
 import './Cart.css';
 
 const Cart = () => {
-  const { storeId } = useParams();
+  const { storeId: storeSlug } = useParams();
+  const {
+    storeId,
+    loading: storeLookupLoading,
+    error: storeLookupError
+  } = useStoreBySlug(storeSlug);
   const { cart, loading, error, updateQuantity, removeFromCart, clearCart, loadCart } = useCart();
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -39,8 +45,24 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    navigate(`/stores/${storeId}/checkout`);
+    navigate(`/stores/${storeSlug}/checkout`);
   };
+
+  if (storeLookupLoading || !storeId) {
+    return (
+      <div className="cart-container">
+        <div className="loading">Loading store...</div>
+      </div>
+    );
+  }
+
+  if (storeLookupError) {
+    return (
+      <div className="cart-container">
+        <div className="error-message">{storeLookupError}</div>
+      </div>
+    );
+  }
 
   if (loading && !cart) {
     return (
@@ -54,7 +76,7 @@ const Cart = () => {
     <div className="cart-container">
       <header className="cart-header">
         <div className="header-content">
-          <button className="back-button" onClick={() => navigate(`/stores/${storeId}`)}>
+          <button className="back-button" onClick={() => navigate(`/stores/${storeSlug}`)}>
             <span className="back-icon">←</span>
             <span>Continue Shopping</span>
           </button>
@@ -77,7 +99,7 @@ const Cart = () => {
             <p>Looks like you haven't added anything to your cart yet.</p>
             <button
               className="shop-button"
-              onClick={() => navigate(`/stores/${storeId}`)}
+              onClick={() => navigate(`/stores/${storeSlug}`)}
             >
               Start Shopping
             </button>
@@ -180,10 +202,21 @@ const Cart = () => {
                     <span className="summary-label">Subtotal</span>
                     <span className="summary-value">{formatCurrency(cart.subtotal)}</span>
                   </div>
+                  <div className="summary-row">
+                    <span className="summary-label">Shipping</span>
+                    <span className="summary-value">
+                      {(() => {
+                        const shipping = calculateShipping(cart.subtotal);
+                        return shipping === 0 ? 'Free' : formatCurrency(shipping);
+                      })()}
+                    </span>
+                  </div>
                   <div className="summary-divider"></div>
                   <div className="summary-row total-row">
                     <span className="summary-label">Total</span>
-                    <span className="summary-value total-value">{formatCurrency(cart.subtotal)}</span>
+                    <span className="summary-value total-value">
+                      {formatCurrency(parseFloat(cart.subtotal) + calculateShipping(cart.subtotal))}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -194,7 +227,11 @@ const Cart = () => {
                   <span>Proceed to Checkout</span>
                   <span className="checkout-arrow">→</span>
                 </button>
-                <p className="summary-note">Free shipping on orders over ₹500</p>
+                <p className="summary-note">
+                  {parseFloat(cart.subtotal) >= 500 
+                    ? '🎉 You qualify for free shipping!'
+                    : `Add ₹${(500 - parseFloat(cart.subtotal)).toFixed(2)} more for free shipping`}
+                </p>
               </div>
             </div>
           </div>
