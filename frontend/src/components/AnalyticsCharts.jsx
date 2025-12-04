@@ -15,6 +15,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import analyticsService from '../services/analyticsService';
+import { formatCurrency as formatCurrencyUtil } from '../utils/currency';
 import './AnalyticsCharts.css';
 
 const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
@@ -137,14 +138,6 @@ const AnalyticsCharts = ({ storeId }) => {
     }
     return formatCurrencyUtil(value);
   };
-  
-  const formatCurrencyOld = (value, options = {}) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: options.compact ? 0 : 2,
-      notation: options.compact ? 'compact' : 'standard'
-    }).format(Number(value || 0));
 
   const formatNumber = (value, options = {}) =>
     new Intl.NumberFormat('en-US', {
