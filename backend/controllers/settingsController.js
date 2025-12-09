@@ -101,7 +101,14 @@ const settingsController = {
         }
       };
 
-      // Update store settings
+      // Log the settings being saved for debugging
+      console.log('Saving settings:', {
+        category,
+        settings,
+        updatedSettings: JSON.stringify(updatedSettings, null, 2)
+      });
+
+      // Update store settings in Supabase
       const { data: updatedStore, error: updateError } = await supabaseAdmin
         .from('stores')
         .update({
@@ -113,8 +120,16 @@ const settingsController = {
         .single();
 
       if (updateError) {
+        console.error('Supabase update error:', updateError);
         throw updateError;
       }
+
+      // Verify the settings were saved correctly
+      console.log('Settings saved successfully:', {
+        storeId,
+        category,
+        savedSettings: updatedStore.settings
+      });
 
       res.json({
         success: true,
