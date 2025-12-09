@@ -228,6 +228,23 @@ const productController = {
       // Ensure products is always an array
       const productsArray = Array.isArray(products) ? products : [];
 
+      // Get total product count for the store (all products, regardless of filters)
+      const { count: totalCount } = await supabaseAdmin
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('store_id', storeId);
+
+      // Get category-wise count if category_id is specified
+      let categoryCount = null;
+      if (category_id) {
+        const { count } = await supabaseAdmin
+          .from('products')
+          .select('*', { count: 'exact', head: true })
+          .eq('store_id', storeId)
+          .eq('category_id', category_id);
+        categoryCount = count || 0;
+      }
+
       // Get category information for products
       let productsWithCategories = productsArray;
       
@@ -275,7 +292,9 @@ const productController = {
         success: true,
         data: {
           products: productsWithCategories,
-          count: productsWithCategories.length
+          count: productsWithCategories.length,
+          totalCount: totalCount || 0,
+          categoryCount: categoryCount
         }
       });
     } catch (error) {
