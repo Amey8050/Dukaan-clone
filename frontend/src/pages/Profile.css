@@ -1249,48 +1249,48 @@
   }
 }
 
-.dark-mode .profile-container {
+[data-theme="dark"] .profile-container {
   background: linear-gradient(135deg, var(--color-secondary-800) 0%, var(--color-secondary-900) 100%);
 }
 
-.dark-mode .profile-header {
+[data-theme="dark"] .profile-header {
   background: rgba(30, 41, 59, 0.95);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .stat-card,
-.dark-mode .profile-section,
-.dark-mode .store-card,
-.dark-mode .order-card,
-.dark-mode .action-card {
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .profile-section,
+[data-theme="dark"] .store-card,
+[data-theme="dark"] .order-card,
+[data-theme="dark"] .action-card {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .detail-item,
-.dark-mode .url-input-group input,
-.dark-mode .form-group input {
+[data-theme="dark"] .detail-item,
+[data-theme="dark"] .url-input-group input,
+[data-theme="dark"] .form-group input {
   background: var(--color-secondary-700);
   border-color: var(--color-secondary-600);
   color: var(--color-text-inverse);
 }
 
-.dark-mode .header-content h1,
-.dark-mode .section-header h2,
-.dark-mode .profile-name h3,
-.dark-mode .detail-value,
-.dark-mode .order-id,
-.dark-mode .store-body h3,
-.dark-mode .action-content h3 {
+[data-theme="dark"] .header-content h1,
+[data-theme="dark"] .section-header h2,
+[data-theme="dark"] .profile-name h3,
+[data-theme="dark"] .detail-value,
+[data-theme="dark"] .order-id,
+[data-theme="dark"] .store-body h3,
+[data-theme="dark"] .action-content h3 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .header-subtitle,
-.dark-mode .section-description,
-.dark-mode .profile-email,
-.dark-mode .detail-label,
-.dark-mode .order-date,
-.dark-mode .action-content p {
+[data-theme="dark"] .header-subtitle,
+[data-theme="dark"] .section-description,
+[data-theme="dark"] .profile-email,
+[data-theme="dark"] .detail-label,
+[data-theme="dark"] .order-date,
+[data-theme="dark"] .action-content p {
   color: var(--color-text-tertiary);
 }
 
@@ -1351,3 +1351,4 @@
     max-height: 80px;
   }
 }
+
