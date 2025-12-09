@@ -1140,36 +1140,36 @@
   }
 }
 
-.dark-mode .orders-container,
-.dark-mode .order-detail-container {
+[data-theme="dark"] .orders-container,
+[data-theme="dark"] .order-detail-container {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
-.dark-mode .orders-header,
-.dark-mode .order-detail-header,
-.dark-mode .orders-table-container,
-.dark-mode .order-status-section,
-.dark-mode .order-items-section,
-.dark-mode .address-section,
-.dark-mode .notes-section,
-.dark-mode .summary-card,
-.dark-mode .filter-tabs {
+[data-theme="dark"] .orders-header,
+[data-theme="dark"] .order-detail-header,
+[data-theme="dark"] .orders-table-container,
+[data-theme="dark"] .order-status-section,
+[data-theme="dark"] .order-items-section,
+[data-theme="dark"] .address-section,
+[data-theme="dark"] .notes-section,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .filter-tabs {
   background: rgba(30, 41, 59, 0.95);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .orders-header h1,
-.dark-mode .order-detail-header h1,
-.dark-mode .empty-state h2,
-.dark-mode .order-status-section h2,
-.dark-mode .order-items-section h2,
-.dark-mode .address-section h2,
-.dark-mode .notes-section h2,
-.dark-mode .summary-card h2 {
+[data-theme="dark"] .orders-header h1,
+[data-theme="dark"] .order-detail-header h1,
+[data-theme="dark"] .empty-state h2,
+[data-theme="dark"] .order-status-section h2,
+[data-theme="dark"] .order-items-section h2,
+[data-theme="dark"] .address-section h2,
+[data-theme="dark"] .notes-section h2,
+[data-theme="dark"] .summary-card h2 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .orders-table tbody tr:hover {
+[data-theme="dark"] .orders-table tbody tr:hover {
   background: var(--color-secondary-700);
 }
 
@@ -1229,3 +1229,4 @@
     break-inside: avoid;
   }
 }
+
