@@ -17,10 +17,24 @@ const authService = {
     const response = await api.post('/api/auth/login', { email, password });
     
     // Store tokens and user data
-    if (response.data.data.session) {
-      localStorage.setItem('access_token', response.data.data.session.access_token);
-      localStorage.setItem('refresh_token', response.data.data.session.refresh_token);
-      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+    if (response.data && response.data.success && response.data.data && response.data.data.session) {
+      const { access_token, refresh_token } = response.data.data.session;
+      const user = response.data.data.user;
+      
+      // Store tokens
+      if (access_token) {
+        localStorage.setItem('access_token', access_token);
+      }
+      if (refresh_token) {
+        localStorage.setItem('refresh_token', refresh_token);
+      }
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      
+      console.log('Login successful - Token stored:', !!access_token);
+    } else {
+      console.error('Login response missing session data:', response.data);
     }
     
     return response.data;
