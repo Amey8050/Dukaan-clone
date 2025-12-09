@@ -45,8 +45,9 @@ const getModel = (modelName = null) => {
   }
   
   // Determine which model to use
+  // Updated default to gemini-1.5-flash (faster and more reliable)
   const preferredModel = process.env.GEMINI_MODEL;
-  const targetModel = modelName || preferredModel || 'gemini-pro-latest';
+  const targetModel = modelName || preferredModel || 'gemini-1.5-flash';
   
   // Return cached model if it's the same model
   if (cachedModel && cachedModelName === targetModel) {
@@ -59,17 +60,23 @@ const getModel = (modelName = null) => {
     cachedModelName = targetModel;
     return cachedModel;
   } catch (error) {
-    // Fallback: try default model if specified model fails
-    if (targetModel !== 'gemini-pro-latest') {
-      try {
-        cachedModel = genAI.getGenerativeModel({ model: 'gemini-pro-latest' });
-        cachedModelName = 'gemini-pro-latest';
-        return cachedModel;
-      } catch (fallbackError) {
-        console.error('Model initialization failed:', fallbackError.message);
-        throw new Error(`Failed to initialize AI model: ${fallbackError.message}`);
+    // Fallback: try alternative models if specified model fails
+    const fallbackModels = ['gemini-1.5-flash', 'gemini-pro', 'gemini-pro-latest'];
+    for (const fallbackModel of fallbackModels) {
+      if (targetModel !== fallbackModel) {
+        try {
+          console.warn(`⚠️  Trying fallback model: ${fallbackModel}`);
+          cachedModel = genAI.getGenerativeModel({ model: fallbackModel });
+          cachedModelName = fallbackModel;
+          console.log(`✅ Successfully initialized model: ${fallbackModel}`);
+          return cachedModel;
+        } catch (fallbackError) {
+          console.warn(`⚠️  Fallback model ${fallbackModel} failed: ${fallbackError.message}`);
+          continue;
+        }
       }
     }
+    console.error('❌ All model initialization attempts failed');
     throw new Error(`Failed to initialize AI model: ${error.message}`);
   }
 };
