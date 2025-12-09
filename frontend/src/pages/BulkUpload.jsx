@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import bulkUploadService from '../services/bulkUploadService';
 import useStoreBySlug from '../hooks/useStoreBySlug';
@@ -10,6 +10,7 @@ import './BulkUpload.css';
 
 const BulkUpload = () => {
   const { storeId: storeSlug } = useParams();
+  const location = useLocation();
   const {
     storeId,
     loading: storeLookupLoading,
@@ -17,6 +18,9 @@ const BulkUpload = () => {
   } = useStoreBySlug(storeSlug);
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // Check if we came from dashboard
+  const fromDashboard = location.state?.from === 'dashboard';
 
   const [file, setFile] = useState(null);
   const [useAI, setUseAI] = useState(false); // AI disabled by default for faster uploads
@@ -71,7 +75,15 @@ const BulkUpload = () => {
       setResult(null);
       setUploadProgress(0);
 
-      const response = await bulkUploadService.uploadProducts(file, storeId, useAI, generateDescription);
+      const response = await bulkUploadService.uploadProducts(
+        file, 
+        storeId, 
+        useAI, 
+        generateDescription,
+        (progress) => {
+          setUploadProgress(progress);
+        }
+      );
 
       if (response.success) {
         setResult(response.data);
@@ -130,9 +142,15 @@ const BulkUpload = () => {
       <div className="bulk-upload-wrapper">
         <button
           className="back-button"
-          onClick={() => navigate(`/stores/${storeSlug}/products`)}
+          onClick={() => {
+            if (fromDashboard) {
+              navigate(`/stores/${storeId}/dashboard`, { state: { tab: 'products' } });
+            } else {
+              navigate(`/stores/${storeSlug}/products`);
+            }
+          }}
         >
-          ← Back to Products
+          ← {fromDashboard ? 'Back to Dashboard' : 'Back to Products'}
         </button>
 
         <div className="bulk-upload-card">
@@ -339,9 +357,15 @@ const BulkUpload = () => {
               <div className="result-actions">
                 <button
                   className="action-button primary"
-                  onClick={() => navigate(`/stores/${storeSlug}/products`)}
+                  onClick={() => {
+                    if (fromDashboard) {
+                      navigate(`/stores/${storeId}/dashboard`, { state: { tab: 'products' } });
+                    } else {
+                      navigate(`/stores/${storeSlug}/products`);
+                    }
+                  }}
                 >
-                  View All Products
+                  {fromDashboard ? 'Back to Dashboard' : 'View All Products'}
                 </button>
                 <button
                   className="action-button secondary"
