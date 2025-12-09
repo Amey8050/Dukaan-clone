@@ -1148,58 +1148,58 @@
   }
 }
 
-.dark-mode .inventory-container {
+[data-theme="dark"] .inventory-container {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
-.dark-mode .loading,
-.dark-mode .summary-card,
-.dark-mode .low-stock-card,
-.dark-mode .empty-state,
-.dark-mode .modal-content {
+[data-theme="dark"] .loading,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .low-stock-card,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .modal-content {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .summary-info h3,
-.dark-mode .section-header h2,
-.dark-mode .product-info h3,
-.dark-mode .modal-header h2,
-.dark-mode .empty-state h2 {
+[data-theme="dark"] .summary-info h3,
+[data-theme="dark"] .section-header h2,
+[data-theme="dark"] .product-info h3,
+[data-theme="dark"] .modal-header h2,
+[data-theme="dark"] .empty-state h2 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .summary-info p,
-.dark-mode .sku,
-.dark-mode .stock-quantity,
-.dark-mode .empty-state p {
+[data-theme="dark"] .summary-info p,
+[data-theme="dark"] .sku,
+[data-theme="dark"] .stock-quantity,
+[data-theme="dark"] .empty-state p {
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .low-stock-card.stock-out {
+[data-theme="dark"] .low-stock-card.stock-out {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.1));
 }
 
-.dark-mode .low-stock-card.stock-low {
+[data-theme="dark"] .low-stock-card.stock-low {
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.1));
 }
 
-.dark-mode .view-button {
+[data-theme="dark"] .view-button {
   background: var(--color-secondary-700);
   border-color: var(--color-primary);
 }
 
-.dark-mode .form-group input,
-.dark-mode .form-group select,
-.dark-mode .form-group textarea {
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .form-group textarea {
   background: var(--color-secondary-700);
   border-color: var(--color-secondary-600);
   color: var(--color-text-inverse);
 }
 
-.dark-mode .form-group input:focus,
-.dark-mode .form-group select:focus,
-.dark-mode .form-group textarea:focus {
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group select:focus,
+[data-theme="dark"] .form-group textarea:focus {
   background: var(--color-secondary-800);
   border-color: var(--color-primary);
 }
@@ -1257,3 +1257,4 @@
     break-inside: avoid;
   }
 }
+
