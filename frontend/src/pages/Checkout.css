@@ -984,92 +984,92 @@
   }
 }
 
-.dark-mode .checkout-container {
+[data-theme="dark"] .checkout-container {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
-.dark-mode .checkout-header {
+[data-theme="dark"] .checkout-header {
   background: linear-gradient(135deg, #4c1d95 0%, #312e81 100%);
 }
 
-.dark-mode .loading,
-.dark-mode .empty-cart,
-.dark-mode .checkout-form,
-.dark-mode .summary-card {
+[data-theme="dark"] .loading,
+[data-theme="dark"] .empty-cart,
+[data-theme="dark"] .checkout-form,
+[data-theme="dark"] .summary-card {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .empty-cart h2,
-.dark-mode .form-section h2,
-.dark-mode .summary-card h2,
-.dark-mode .payment-details h3,
-.dark-mode .item-name,
-.dark-mode .item-price,
-.dark-mode .summary-row.total {
+[data-theme="dark"] .empty-cart h2,
+[data-theme="dark"] .form-section h2,
+[data-theme="dark"] .summary-card h2,
+[data-theme="dark"] .payment-details h3,
+[data-theme="dark"] .item-name,
+[data-theme="dark"] .item-price,
+[data-theme="dark"] .summary-row.total {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .empty-cart p,
-.dark-mode .form-group label,
-.dark-mode .payment-info h3,
-.dark-mode .item-quantity,
-.dark-mode .summary-row {
+[data-theme="dark"] .empty-cart p,
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .payment-info h3,
+[data-theme="dark"] .item-quantity,
+[data-theme="dark"] .summary-row {
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .form-group input,
-.dark-mode .form-group textarea,
-.dark-mode .form-group select {
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
   background: var(--color-secondary-700);
   border-color: var(--color-secondary-600);
   color: var(--color-text-inverse);
 }
 
-.dark-mode .form-group input:focus,
-.dark-mode .form-group textarea:focus,
-.dark-mode .form-group select:focus {
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .form-group select:focus {
   background: var(--color-secondary-800);
   border-color: var(--color-primary);
 }
 
-.dark-mode .payment-method-option {
+[data-theme="dark"] .payment-method-option {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .payment-method-option:hover,
-.dark-mode .payment-method-option.selected {
+[data-theme="dark"] .payment-method-option:hover,
+[data-theme="dark"] .payment-method-option.selected {
   background: rgba(102, 126, 234, 0.2);
   border-color: var(--color-primary);
 }
 
-.dark-mode .payment-icon {
+[data-theme="dark"] .payment-icon {
   background: var(--color-secondary-700);
 }
 
-.dark-mode .payment-details,
-.dark-mode .info-box {
+[data-theme="dark"] .payment-details,
+[data-theme="dark"] .info-box {
   background: var(--color-secondary-700);
   border-color: var(--color-secondary-600);
 }
 
-.dark-mode .summary-item,
-.dark-mode .summary-row {
+[data-theme="dark"] .summary-item,
+[data-theme="dark"] .summary-row {
   border-bottom-color: var(--color-secondary-700);
 }
 
-.dark-mode .summary-item:hover,
-.dark-mode .summary-row:hover {
+[data-theme="dark"] .summary-item:hover,
+[data-theme="dark"] .summary-row:hover {
   background: var(--color-secondary-700);
 }
 
-.dark-mode .summary-row.total {
+[data-theme="dark"] .summary-row.total {
   background: rgba(102, 126, 234, 0.15);
   border-top-color: var(--color-secondary-700);
 }
 
-.dark-mode .summary-divider {
+[data-theme="dark"] .summary-divider {
   background: linear-gradient(90deg, transparent, var(--color-secondary-600), transparent);
 }
 
@@ -1130,3 +1130,4 @@
     margin-top: var(--spacing-4xl);
   }
 }
+
