@@ -865,11 +865,11 @@
   }
 }
 
-.dark-mode .reports-controls,
-.dark-mode .report-content,
-.dark-mode .report-table-container,
-.dark-mode .reports-loading,
-.dark-mode .reports-empty {
+[data-theme="dark"] .reports-controls,
+[data-theme="dark"] .report-content,
+[data-theme="dark"] .report-table-container,
+[data-theme="dark"] .reports-loading,
+[data-theme="dark"] .reports-empty {
   background: var(--color-secondary-800, #1e293b);
   border-color: var(--color-secondary-600, #475569);
 }
@@ -895,3 +895,4 @@
     page-break-inside: avoid;
   }
 }
+
