@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import homepageService from '../services/homepageService';
 import analyticsService from '../services/analyticsService';
 import LazyImage from '../components/LazyImage';
+import GoogleMap from '../components/GoogleMap';
 import { formatCurrency } from '../utils/currency';
 import './StoreHomepage.css';
 
@@ -284,6 +285,60 @@ const StoreHomepage = () => {
                   <h3>{category.name}</h3>
                 </Link>
               ))}
+            </div>
+          </section>
+        )}
+
+        {/* Store Location Map - Find Us Section */}
+        {store.settings?.location?.latitude && store.settings?.location?.longitude && (
+          <section className="homepage-section find-us-section">
+            <div className="section-header">
+              <h2>Find Us</h2>
+            </div>
+            {store.settings.location.address && (
+              <div className="store-address-display">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <p>{store.settings.location.address}</p>
+              </div>
+            )}
+            <div className="map-container">
+              <GoogleMap
+                latitude={store.settings.location.latitude}
+                longitude={store.settings.location.longitude}
+                address={store.settings.location.address}
+                height="400px"
+              />
+            </div>
+            <div className="map-actions">
+              <a
+                href={`https://www.google.com/maps?q=${store.settings.location.latitude},${store.settings.location.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="open-maps-button"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Open in Google Maps
+              </a>
+              {store.settings.location.address && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.settings.location.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="open-maps-button secondary"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  Get Directions
+                </a>
+              )}
             </div>
           </section>
         )}
