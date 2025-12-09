@@ -70,11 +70,32 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await authService.login(email, password);
-      setUser(response.data.user);
-      return { success: true, data: response.data };
+      
+      // Verify login was successful
+      if (response && response.success && response.data && response.data.user) {
+        setUser(response.data.user);
+        
+        // Verify token was stored
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          console.error('Warning: Token not stored after login');
+          return { 
+            success: false, 
+            error: 'Login successful but token storage failed. Please try again.' 
+          };
+        }
+        
+        return { success: true, data: response.data };
+      } else {
+        return { 
+          success: false, 
+          error: response?.error?.message || 'Login failed - Invalid response' 
+        };
+      }
     } catch (err) {
-      const errorMessage = err.response?.data?.error?.message || 'Login failed';
+      const errorMessage = err.response?.data?.error?.message || err.message || 'Login failed';
       setError(errorMessage);
+      console.error('Login error:', err);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
