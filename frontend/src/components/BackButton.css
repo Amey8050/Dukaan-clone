@@ -494,63 +494,63 @@
 }
 
 /* Class-based Dark Mode */
-.dark-mode .back-button {
+[data-theme="dark"] .back-button {
   background: rgba(30, 41, 59, 0.95);
   color: var(--color-primary-300, #a5b4fc);
   border-color: rgba(165, 180, 252, 0.3);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.3));
 }
 
-.dark-mode .back-button:hover {
+[data-theme="dark"] .back-button:hover {
   background: rgba(51, 65, 85, 0.95);
   border-color: var(--color-primary-300, #a5b4fc);
   color: var(--color-primary-200, #c7d2fe);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.4));
 }
 
-.dark-mode .back-button-form {
+[data-theme="dark"] .back-button-form {
   background: rgba(30, 41, 59, 0.95);
   color: var(--color-primary-300, #a5b4fc);
   border-color: rgba(165, 180, 252, 0.3);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.3));
 }
 
-.dark-mode .back-button-form:hover {
+[data-theme="dark"] .back-button-form:hover {
   background: rgba(51, 65, 85, 0.95);
   border-color: var(--color-primary-300, #a5b4fc);
   color: var(--color-primary-200, #c7d2fe);
 }
 
-.dark-mode .back-button-profile {
+[data-theme="dark"] .back-button-profile {
   background: rgba(30, 41, 59, 0.95);
   color: var(--color-primary-300, #a5b4fc);
   border-color: rgba(165, 180, 252, 0.3);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.3));
 }
 
-.dark-mode .back-button-profile:hover {
+[data-theme="dark"] .back-button-profile:hover {
   background: rgba(51, 65, 85, 0.95);
   border-color: var(--color-primary-300, #a5b4fc);
   color: var(--color-primary-200, #c7d2fe);
 }
 
-.dark-mode .back-button-outline {
+[data-theme="dark"] .back-button-outline {
   background: transparent;
   border-color: var(--color-primary-300, #a5b4fc);
   color: var(--color-primary-300, #a5b4fc);
 }
 
-.dark-mode .back-button-outline:hover {
+[data-theme="dark"] .back-button-outline:hover {
   background: rgba(165, 180, 252, 0.1);
   border-color: var(--color-primary-200, #c7d2fe);
   color: var(--color-primary-200, #c7d2fe);
 }
 
-.dark-mode .back-button-ghost {
+[data-theme="dark"] .back-button-ghost {
   color: var(--color-primary-300, #a5b4fc);
 }
 
-.dark-mode .back-button-ghost:hover {
+[data-theme="dark"] .back-button-ghost:hover {
   background: rgba(165, 180, 252, 0.1);
   border-color: rgba(165, 180, 252, 0.2);
 }
@@ -649,3 +649,4 @@
     display: none;
   }
 }
+
