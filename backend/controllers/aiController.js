@@ -71,7 +71,20 @@ const aiController = {
         });
       }
 
-      const model = getModel();
+      let model;
+      try {
+        model = getModel();
+      } catch (modelError) {
+        console.error('Failed to get AI model:', modelError.message);
+        // Use fallback description if model initialization fails
+        const fallbackDescription = buildFallbackDescription({ product_name, category, features, price });
+        return res.json({
+          success: true,
+          data: {
+            description: fallbackDescription
+          }
+        });
+      }
 
       // Optimized prompt - shorter and more direct
       const prompt = `Write a professional product description (100-200 words) for:
@@ -111,7 +124,15 @@ Make it SEO-friendly, highlight benefits, and use persuasive language.`;
           description = buildFallbackDescription({ product_name, category, features, price });
         } else {
           console.error('Gemini API error:', apiError.message);
-          throw apiError;
+          console.error('Error details:', {
+            name: apiError.name,
+            code: apiError.code,
+            message: apiError.message,
+            stack: apiError.stack
+          });
+          // Use fallback instead of throwing to prevent 500 error
+          console.warn('⚠️  Using fallback description due to API error.');
+          description = buildFallbackDescription({ product_name, category, features, price });
         }
       }
 
@@ -163,32 +184,45 @@ Make it SEO-friendly, highlight benefits, and use persuasive language.`;
   // Generate SEO keywords
   generateSEO: async (req, res, next) => {
     try {
-      const { product_name, category, description } = req.body;
+      const { product_name, store_name, category, description, store_description } = req.body;
+      const name = product_name || store_name;
+      const desc = description || store_description;
 
-      if (!product_name) {
+      if (!name) {
         return res.status(400).json({
           success: false,
           error: {
-            message: 'Product name is required'
+            message: 'Product name or store name is required'
           }
         });
       }
 
+      const isStore = !!store_name;
+
       // Build fallback SEO data
       const buildFallbackSEO = () => {
         const keywords = [
-          product_name.toLowerCase(),
+          name.toLowerCase(),
           ...(category ? [category.toLowerCase()] : []),
-          'buy online',
-          'best price',
-          'free shipping'
+          isStore ? 'online store' : 'buy online',
+          isStore ? 'shop online' : 'best price',
+          isStore ? 'ecommerce' : 'free shipping'
         ].filter(Boolean);
         
-        return {
-          keywords: keywords.slice(0, 10),
-          seo_title: `${product_name}${category ? ` - Best ${category}` : ''} | Online Store`,
-          seo_description: `Shop ${product_name} online. ${description ? description.substring(0, 120) : 'High quality product with great features and best prices.'}`
-        };
+        if (isStore) {
+          return {
+            keywords: keywords.slice(0, 10),
+            meta_title: `${name}${category ? ` - ${category} Store` : ''} | Online Shopping`,
+            meta_description: desc ? desc.substring(0, 155) : `Shop at ${name} - Your trusted online store for quality products and great deals.`,
+            meta_keywords: keywords.join(', ')
+          };
+        } else {
+          return {
+            keywords: keywords.slice(0, 10),
+            seo_title: `${name}${category ? ` - Best ${category}` : ''} | Online Store`,
+            seo_description: `Shop ${name} online. ${desc ? desc.substring(0, 120) : 'High quality product with great features and best prices.'}`
+          };
+        }
       };
 
       // Check if AI is available
@@ -216,8 +250,13 @@ Make it SEO-friendly, highlight benefits, and use persuasive language.`;
       }
 
       // Optimized prompt - shorter and direct
-      const prompt = `Generate SEO for: ${product_name}${category ? ` (${category})` : ''}
-${description ? `\nDescription: ${description.substring(0, 200)}` : ''}
+      const prompt = isStore 
+        ? `Generate SEO meta tags for an online store: ${name}${category ? ` (${category} store)` : ''}
+${desc ? `\nStore Description: ${desc.substring(0, 200)}` : ''}
+
+Return JSON: {"meta_title": "SEO optimized title (50-60 chars)", "meta_description": "SEO description (150-160 chars)", "meta_keywords": "keyword1, keyword2, keyword3"}` 
+        : `Generate SEO for: ${name}${category ? ` (${category})` : ''}
+${desc ? `\nDescription: ${desc.substring(0, 200)}` : ''}
 
 Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description": "desc"}`;
 
@@ -253,8 +292,20 @@ Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description"
           }
           
           // Validate SEO data structure
-          if (!seoData.keywords || !Array.isArray(seoData.keywords)) {
-            throw new Error('Invalid SEO data format');
+          if (isStore) {
+            // For stores, validate meta fields
+            if (!seoData.meta_title || !seoData.meta_description) {
+              throw new Error('Invalid store SEO data format');
+            }
+            // Ensure meta_keywords is a string
+            if (!seoData.meta_keywords) {
+              seoData.meta_keywords = seoData.keywords ? seoData.keywords.join(', ') : '';
+            }
+          } else {
+            // For products, validate keywords array
+            if (!seoData.keywords || !Array.isArray(seoData.keywords)) {
+              throw new Error('Invalid SEO data format');
+            }
           }
         } catch (parseError) {
           // Fallback: extract keywords from text
@@ -266,7 +317,11 @@ Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description"
 
           seoData = buildFallbackSEO();
           if (keywords.length > 0) {
-            seoData.keywords = [...new Set([...keywords, ...seoData.keywords])].slice(0, 10);
+            if (isStore) {
+              seoData.meta_keywords = keywords.join(', ');
+            } else {
+              seoData.keywords = [...new Set([...keywords, ...seoData.keywords])].slice(0, 10);
+            }
           }
         }
       } catch (apiError) {
@@ -302,10 +357,10 @@ Return JSON: {"keywords": ["kw1","kw2"], "seo_title": "title", "seo_description"
       console.error('=============================================\n');
       
       // Always return fallback SEO data instead of failing
-      const { product_name, category, description } = req.body;
+      const { product_name, category, description, store_name, store_description } = req.body;
       const fallbackSEO = {
         keywords: [
-          product_name?.toLowerCase() || 'product',
+          (product_name || store_name)?.toLowerCase() || 'product',
           ...(category ? [category.toLowerCase()] : []),
           'buy online',
           'best price'
@@ -599,7 +654,18 @@ Return JSON array with product names (exact match from list above) and reasons:
         });
       }
 
-      const model = getModel();
+      let model;
+      try {
+        model = getModel();
+      } catch (modelError) {
+        console.error('Failed to get AI model:', modelError.message);
+        // Use fallback pricing if model initialization fails
+        const fallbackPricing = buildPricingFallback({ cost, product_name });
+        return res.json({
+          success: true,
+          data: fallbackPricing
+        });
+      }
 
       // Optimized prompt - shorter and direct
       const prompt = `Suggest pricing for: ${product_name}${category ? ` (${category})` : ''}
@@ -636,7 +702,15 @@ Return JSON: {"suggested_price": X, "pricing_tiers": [{"tier":"low","price":X},.
           console.warn(`⚠️  AI pricing timeout after ${duration}ms. Using fallback tiers.`);
           pricingData = buildPricingFallback({ cost, product_name });
         } else {
-          throw apiError;
+          console.error('Gemini API error:', apiError.message);
+          console.error('Error details:', {
+            name: apiError.name,
+            code: apiError.code,
+            message: apiError.message
+          });
+          // Use fallback instead of throwing to prevent 500 error
+          console.warn('⚠️  Using fallback pricing due to API error.');
+          pricingData = buildPricingFallback({ cost, product_name });
         }
       }
 
