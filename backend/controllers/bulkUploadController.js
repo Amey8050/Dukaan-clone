@@ -207,11 +207,21 @@ const parseExcelFile = (fileBuffer) => {
     const sheetName = workbook.SheetNames[0]; // Use first sheet
     const worksheet = workbook.Sheets[sheetName];
     
-    // Convert to JSON
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    // Convert to JSON with header row
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+      defval: null, // Default value for empty cells
+      raw: false, // Convert all values to strings
+      blankrows: false // Skip blank rows
+    });
     
     if (!jsonData || jsonData.length === 0) {
       throw new Error('Excel file is empty or has no data');
+    }
+    
+    // Debug: Log first row to see column names
+    if (jsonData.length > 0) {
+      console.log('📋 First row column names:', Object.keys(jsonData[0]));
+      console.log('📋 First row sample:', JSON.stringify(jsonData[0], null, 2));
     }
     
     return jsonData;
@@ -441,19 +451,33 @@ Return your analysis as JSON:
 const transformRowToProduct = async (row, storeId, useAI = false, generateDescription = false) => {
   const product = {};
   
+  // Debug: Log all column names from the row
+  const rowKeys = Object.keys(row);
+  if (rowKeys.length === 0) {
+    throw new Error('Row is empty - no columns found');
+  }
+  
   // Map all columns
   for (const [key, value] of Object.entries(row)) {
     const normalizedKey = normalizeColumnName(key);
     
-    if (value !== undefined && value !== null && value !== '') {
-      product[normalizedKey] = value;
+    // Handle empty strings and whitespace-only values
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      product[normalizedKey] = typeof value === 'string' ? value.trim() : value;
     }
   }
   
-  // Ensure required fields
-  if (!product.name) {
+  // Ensure required fields - check multiple possible field names
+  const productName = product.name || product.product_name || product.title || product.product_title;
+  if (!productName || String(productName).trim() === '') {
+    // Debug: Log what columns were found
+    console.error('❌ Missing product name. Available columns:', rowKeys);
+    console.error('❌ Row data:', row);
     throw new Error('Product name is required');
   }
+  
+  // Set the name field
+  product.name = String(productName).trim();
   
   if (!product.price) {
     throw new Error('Product price is required');
@@ -545,11 +569,26 @@ const transformRowToProduct = async (row, storeId, useAI = false, generateDescri
       categoryId = product.category;
     } else {
       // It's a category name, find or create the category
-      categoryId = await findOrCreateCategory(product.category, storeId);
+      console.log(`🔍 Processing category: "${product.category}" for store ${storeId}`);
+      try {
+        categoryId = await findOrCreateCategory(product.category, storeId);
+        if (!categoryId) {
+          console.warn(`⚠️ Failed to create/find category: "${product.category}"`);
+        } else {
+          console.log(`✅ Category assigned: "${product.category}" -> ${categoryId}`);
+        }
+      } catch (categoryError) {
+        console.error(`❌ Error processing category "${product.category}":`, categoryError);
+        // Continue without category if creation fails
+        categoryId = null;
+      }
     }
   } else if (product.category_id) {
     // Legacy support - category_id might be provided directly
     categoryId = product.category_id;
+  } else {
+    // Debug: Log when category is missing
+    console.log(`ℹ️ No category provided for product: ${product.name || 'Unknown'}`);
   }
   
   // Build product data
@@ -751,9 +790,13 @@ const bulkUploadController = {
               }
             } catch (error) {
               console.error(`   ❌ Failed: ${error.message}`);
+              // Try to get product name from original row data
+              const productName = row.name || row.product_name || row.title || 
+                                 row['Product Name'] || row['product name'] || 
+                                 Object.values(row)[0] || 'Unknown';
               results.failed.push({
                 row: rowNumber,
-                product_name: row.name || row.product_name || row.title || 'Unknown',
+                product_name: productName,
                 error: error.message
               });
             }
