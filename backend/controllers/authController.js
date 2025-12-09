@@ -272,15 +272,38 @@ const authController = {
 
       // Sign in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim().toLowerCase(),
         password
       });
 
       if (error) {
+        console.error('Login error:', error.message);
         return res.status(401).json({
           success: false,
           error: {
             message: error.message || 'Invalid email or password'
+          }
+        });
+      }
+
+      // Check if session exists
+      if (!data || !data.session) {
+        console.error('Login error: No session returned from Supabase');
+        return res.status(500).json({
+          success: false,
+          error: {
+            message: 'Login failed - No session created. Please try again.'
+          }
+        });
+      }
+
+      // Check if user exists
+      if (!data.user) {
+        console.error('Login error: No user data returned from Supabase');
+        return res.status(500).json({
+          success: false,
+          error: {
+            message: 'Login failed - User data not found. Please try again.'
           }
         });
       }
@@ -292,6 +315,11 @@ const authController = {
         .eq('id', data.user.id)
         .single();
 
+      // Log profile error but don't fail login if profile doesn't exist
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Profile fetch error (non-critical):', profileError.message);
+      }
+
       res.json({
         success: true,
         message: 'Login successful',
@@ -299,9 +327,9 @@ const authController = {
           user: {
             id: data.user.id,
             email: data.user.email,
-            full_name: profile?.full_name,
+            full_name: profile?.full_name || null,
             role: profile?.role || 'user',
-            avatar_url: profile?.avatar_url
+            avatar_url: profile?.avatar_url || null
           },
           session: {
             access_token: data.session.access_token,
@@ -311,6 +339,7 @@ const authController = {
         }
       });
     } catch (error) {
+      console.error('Login exception:', error);
       next(error);
     }
   },
