@@ -15,6 +15,15 @@ api.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Debug in development
+      if (import.meta.env.DEV && config.url?.includes('/api/auth/me')) {
+        console.log('Sending token for:', config.url, 'Token exists:', !!token);
+      }
+    } else {
+      // Debug missing token in development
+      if (import.meta.env.DEV && config.url?.includes('/api/')) {
+        console.warn('No token found for protected route:', config.url);
+      }
     }
     return config;
   },
