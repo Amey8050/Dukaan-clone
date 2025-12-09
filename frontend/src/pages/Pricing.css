@@ -989,36 +989,36 @@
   }
 }
 
-.dark-mode .pricing-main-section,
-.dark-mode .pricing-testimonials,
-.dark-mode .pricing-faqs {
+[data-theme="dark"] .pricing-main-section,
+[data-theme="dark"] .pricing-testimonials,
+[data-theme="dark"] .pricing-faqs {
   background: linear-gradient(180deg, var(--color-secondary-800) 0%, var(--color-secondary-900) 100%);
 }
 
-.dark-mode .pricing-card,
-.dark-mode .testimonial-card,
-.dark-mode .faq-item,
-.dark-mode .billing-toggle,
-.dark-mode .pricing-features-badge {
+[data-theme="dark"] .pricing-card,
+[data-theme="dark"] .testimonial-card,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .billing-toggle,
+[data-theme="dark"] .pricing-features-badge {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .plan-name,
-.dark-mode .testimonial-quote,
-.dark-mode .pricing-title,
-.dark-mode .testimonials-title,
-.dark-mode .faqs-title {
+[data-theme="dark"] .plan-name,
+[data-theme="dark"] .testimonial-quote,
+[data-theme="dark"] .pricing-title,
+[data-theme="dark"] .testimonials-title,
+[data-theme="dark"] .faqs-title {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .faq-question {
+[data-theme="dark"] .faq-question {
   /* In dark mode, use inverse text (white) on dark FAQ background */
   color: var(--color-text-inverse) !important;
 }
 
-.dark-mode .faq-answer,
-.dark-mode .faq-answer p {
+[data-theme="dark"] .faq-answer,
+[data-theme="dark"] .faq-answer p {
   color: #ffffff !important;
 }
 
@@ -1068,3 +1068,4 @@
     border: 2px solid var(--color-border-medium);
   }
 }
+
