@@ -10,12 +10,34 @@ const Stores = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [openDropdownId, setOpenDropdownId] = useState(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     loadStores();
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const target = event.target;
+      const isDropdownButton = target.closest('.action-button-more');
+      const isDropdownMenu = target.closest('.dropdown-menu');
+      
+      if (!isDropdownButton && !isDropdownMenu) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    if (openDropdownId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdownId]);
 
   const loadStores = async () => {
     try {
@@ -33,7 +55,17 @@ const Stores = () => {
     }
   };
 
+  const toggleDropdown = (storeId) => {
+    setOpenDropdownId(openDropdownId === storeId ? null : storeId);
+  };
+
+  const handleEdit = (storeId) => {
+    setOpenDropdownId(null);
+    navigate(`/stores/${storeId}/edit`);
+  };
+
   const handleDelete = async (storeId, storeName) => {
+    setOpenDropdownId(null);
     if (!window.confirm(`Are you sure you want to delete "${storeName}"? This action cannot be undone.`)) {
       return;
     }
@@ -232,8 +264,16 @@ const Stores = () => {
                       </svg>
                       Products
                     </button>
-                    <div className="action-dropdown">
-                      <button className="action-button-more">
+                    <div 
+                      className={`action-dropdown ${openDropdownId === store.id ? 'active' : ''}`}
+                    >
+                      <button 
+                        className="action-button-more"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDropdown(store.id);
+                        }}
+                      >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <circle cx="12" cy="12" r="1"/>
                           <circle cx="12" cy="5" r="1"/>
@@ -241,7 +281,7 @@ const Stores = () => {
                         </svg>
                       </button>
                       <div className="dropdown-menu">
-                        <button onClick={() => navigate(`/stores/${store.id}/edit`)}>
+                        <button onClick={() => handleEdit(store.id)}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
