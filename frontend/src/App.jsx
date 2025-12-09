@@ -1,10 +1,12 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import LoadingSpinner from './components/LoadingSpinner';
+import ThemeToggle from './components/ThemeToggle';
 import './App.css';
 
 // Lazy load pages for code splitting
@@ -29,17 +31,36 @@ const Notifications = lazy(() => import('./pages/Notifications'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const EditStore = lazy(() => import('./pages/EditStore'));
 const BulkUpload = lazy(() => import('./pages/BulkUpload'));
+const StoreLocation = lazy(() => import('./pages/StoreLocation'));
 const LandingPage = lazy(() => import('./components/LandingPage/LandingPage'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 
+// Component to conditionally show theme toggle
+const ConditionalThemeToggle = () => {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+  
+  if (isLandingPage) {
+    return null;
+  }
+  
+  return (
+    <div className="theme-toggle-container">
+      <ThemeToggle />
+    </div>
+  );
+};
+
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <ConditionalThemeToggle />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/login" element={<Login />} />
@@ -142,6 +163,10 @@ function App() {
                 }
               />
               <Route
+                path="/stores/:storeId/location"
+                element={<StoreLocation />}
+              />
+              <Route
                 path="/stores/:storeId/inventory"
                 element={
                   <ProtectedRoute>
@@ -190,6 +215,7 @@ function App() {
         </Router>
       </CartProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
