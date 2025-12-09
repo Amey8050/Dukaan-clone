@@ -54,17 +54,59 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 100%;
+  max-width: 100vw;
   overflow-x: hidden;
   position: relative;
+  box-sizing: border-box;
   
-  /* Cool tone background with subtle gradient */
+  /* Cool tone background with subtle gradient - Light mode default */
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
   
   /* Smooth rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  
+  /* Smooth theme transition */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode root background */
+[data-theme="dark"] #root {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
+}
+
+/* Theme Toggle Container - Fixed Position */
+.theme-toggle-container {
+  position: fixed;
+  top: var(--spacing-5, 20px);
+  right: var(--spacing-5, 20px);
+  z-index: var(--z-tooltip, 1070);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive theme toggle position */
+@media (max-width: 1024px) {
+  .theme-toggle-container {
+    top: var(--spacing-4, 16px);
+    right: var(--spacing-4, 16px);
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-toggle-container {
+    top: var(--spacing-3, 12px);
+    right: var(--spacing-3, 12px);
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-toggle-container {
+    top: var(--spacing-2, 8px);
+    right: var(--spacing-2, 8px);
+  }
 }
 
 /* ============================================
@@ -549,3 +591,4 @@ html {
     display: none;
   }
 }
+
