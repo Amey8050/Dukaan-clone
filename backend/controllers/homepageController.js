@@ -75,6 +75,34 @@ const homepageController = {
       const newArrivals = newArrivalsResult.data || [];
       const categories = categoriesResult.data || [];
 
+      // Get product counts per category
+      const categoryCounts = {};
+      if (categories && categories.length > 0) {
+        const categoryIds = categories.map(cat => cat.id);
+        
+        // Get product counts for each category
+        const countPromises = categoryIds.map(async (categoryId) => {
+          const { count } = await supabaseAdmin
+            .from('products')
+            .select('*', { count: 'exact', head: true })
+            .eq('store_id', storeId)
+            .eq('category_id', categoryId)
+            .eq('status', 'active');
+          return { categoryId, count: count || 0 };
+        });
+        
+        const counts = await Promise.all(countPromises);
+        counts.forEach(({ categoryId, count }) => {
+          categoryCounts[categoryId] = count;
+        });
+      }
+
+      // Attach product counts to categories
+      const categoriesWithCounts = categories.map(category => ({
+        ...category,
+        product_count: categoryCounts[category.id] || 0
+      }));
+
       // Get popular products (based on sales)
       let popularProducts = [];
       try {
@@ -209,8 +237,8 @@ const homepageController = {
 
       // Get products grouped by category - OPTIMIZED: Single query instead of N+1
       const productsByCategory = {};
-      if (categories && categories.length > 0) {
-        const categoryIds = categories.map(cat => cat.id);
+      if (categoriesWithCounts && categoriesWithCounts.length > 0) {
+        const categoryIds = categoriesWithCounts.map(cat => cat.id);
         
         // Fetch all products for all categories in a single query
         const { data: allCategoryProducts } = await supabaseAdmin
@@ -236,7 +264,7 @@ const homepageController = {
         }
 
         // Build productsByCategory object
-        categories.forEach(category => {
+        categoriesWithCounts.forEach(category => {
           const categoryProducts = productsMap.get(category.id) || [];
           if (categoryProducts.length > 0) {
             productsByCategory[category.id] = {
@@ -295,7 +323,7 @@ const homepageController = {
             popular: popularProducts,
             personalized: personalizedRecommendations,
             new_arrivals: newArrivals || [],
-            categories: categories || [],
+            categories: categoriesWithCounts || [],
             products_by_category: productsByCategory || {}
           },
           is_authenticated: !!userId,
