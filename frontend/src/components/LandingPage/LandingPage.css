@@ -40,6 +40,12 @@
   contain: layout style paint;
 }
 
+/* Hide theme toggle on landing page */
+.landing-page ~ .theme-toggle-container,
+body:has(.landing-page) .theme-toggle-container {
+  display: none !important;
+}
+
 /* ============================================
    SMOOTH SCROLLING
    Enhanced Scroll Behavior
@@ -305,3 +311,4 @@ html {
   /* Consistent line height */
   line-height: var(--line-height-normal, 1.5);
 }
+
