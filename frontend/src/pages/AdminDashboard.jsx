@@ -8,8 +8,10 @@ import productService from '../services/productService';
 import orderService from '../services/orderService';
 import homepageService from '../services/homepageService';
 import settingsService from '../services/settingsService';
+import aiService from '../services/aiService';
 import LazyImage from '../components/LazyImage';
 import LoadingSpinner from '../components/LoadingSpinner';
+import GoogleMap from '../components/GoogleMap';
 import { formatCurrency } from '../utils/currency';
 
 // Lazy load heavy components for faster initial load
@@ -45,6 +47,7 @@ const AdminDashboard = () => {
   const [storeSettings, setStoreSettings] = useState({});
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [generatingSEO, setGeneratingSEO] = useState(false);
   // Sidebar open on desktop by default, closed on tablets/mobiles for better responsiveness
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
@@ -367,6 +370,44 @@ const AdminDashboard = () => {
       alert(err.response?.data?.error?.message || 'Failed to save settings');
     } finally {
       setSavingSettings(false);
+    }
+  };
+
+  const handleGenerateSEO = async () => {
+    if (!store) {
+      alert('Store information not loaded');
+      return;
+    }
+
+    try {
+      setGeneratingSEO(true);
+      const result = await aiService.generateSEO({
+        store_name: store.name,
+        store_description: store.description || '',
+        category: store.industry || ''
+      });
+
+      if (result.success && result.data) {
+        const seoData = result.data;
+        // Update storeSettings with generated SEO
+        setStoreSettings({
+          ...storeSettings,
+          seo: {
+            ...storeSettings.seo,
+            meta_title: seoData.meta_title || '',
+            meta_description: seoData.meta_description || '',
+            meta_keywords: seoData.meta_keywords || (Array.isArray(seoData.keywords) ? seoData.keywords.join(', ') : '')
+          }
+        });
+        alert('SEO generated successfully! Review and save when ready.');
+      } else {
+        alert(result.error?.message || 'Failed to generate SEO');
+      }
+    } catch (err) {
+      console.error('Failed to generate SEO:', err);
+      alert(err.response?.data?.error?.message || 'Failed to generate SEO');
+    } finally {
+      setGeneratingSEO(false);
     }
   };
 
@@ -758,12 +799,20 @@ const AdminDashboard = () => {
             <div className="dashboard-section">
               <div className="section-header">
                 <h2>Products</h2>
-                <button
-                  className="primary-button"
-                  onClick={() => navigate(`/stores/${storeId}/products/create`, { state: { from: 'dashboard', tab: 'products' } })}
-                >
-                  + Add Product
-                </button>
+                <div className="section-header-actions">
+                  <button
+                    className="primary-button"
+                    onClick={() => navigate(`/stores/${storeId}/products/create`, { state: { from: 'dashboard', tab: 'products' } })}
+                  >
+                    + Add Product
+                  </button>
+                  <button
+                    className="primary-button"
+                    onClick={() => navigate(`/stores/${storeId}/products/bulk-upload`, { state: { from: 'dashboard', tab: 'products' } })}
+                  >
+                    Upload Bulk Product
+                  </button>
+                </div>
               </div>
 
               {/* Filter Tabs */}
@@ -1517,9 +1566,57 @@ const AdminDashboard = () => {
                           </span>
                         </div>
                       </div>
+
+                      <div className="settings-divider"></div>
+
+                      <h3>Store Location</h3>
+                      <p className="settings-description">Add your store's location map by embedding a Google Maps code</p>
+
+                      <div className="form-group">
+                        <label>Embed Map Code</label>
+                        <textarea
+                          rows="8"
+                          placeholder='<iframe src="https://www.google.com/maps/embed?pb=..." width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>'
+                          className="form-input"
+                          defaultValue={storeSettings.location?.embed_map_code || ''}
+                          onChange={(e) => {
+                            setStoreSettings({
+                              ...storeSettings,
+                              location: { ...storeSettings.location, embed_map_code: e.target.value }
+                            });
+                          }}
+                        />
+                        <small>
+                          Paste the embed code from Google Maps. 
+                          <br />
+                          To get the embed code: Go to Google Maps → Find your location → Click "Share" → Select "Embed a map" → Copy the iframe code
+                        </small>
+                      </div>
+
+                      {storeSettings.location?.embed_map_code && (
+                        <div className="form-group">
+                          <label>Map Preview</label>
+                          <div 
+                            className="map-preview"
+                            dangerouslySetInnerHTML={{ __html: storeSettings.location.embed_map_code }}
+                          />
+                        </div>
+                      )}
+
                       <div className="settings-actions">
                         <button
                           className="primary-button"
+                          onClick={() => {
+                            console.log('Saving location settings:', storeSettings.location);
+                            // Save location directly to settings.location (not under details category)
+                            saveSettings('location', storeSettings.location || {});
+                          }}
+                          disabled={savingSettings}
+                        >
+                          {savingSettings ? 'Saving...' : 'Save Location'}
+                        </button>
+                        <button
+                          className="secondary-button"
                           onClick={() => navigate(`/stores`)}
                         >
                           Manage Stores
@@ -2322,14 +2419,35 @@ const AdminDashboard = () => {
                 {settingsCategory === 'seo' && (
                   <div className="settings-section">
                     <div className="settings-form">
-                      <h3>SEO Settings</h3>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <h3>SEO Settings</h3>
+                        <button
+                          className="secondary-button"
+                          onClick={handleGenerateSEO}
+                          disabled={generatingSEO || !store}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        >
+                          {generatingSEO ? (
+                            <>
+                              <span>Generating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                              </svg>
+                              Generate with AI
+                            </>
+                          )}
+                        </button>
+                      </div>
                       <div className="form-group">
                         <label>Meta Title</label>
                         <input
                           type="text"
                           placeholder="Store Name - Best Products Online"
                           className="form-input"
-                          defaultValue={storeSettings.seo?.meta_title || ''}
+                          value={storeSettings.seo?.meta_title || ''}
                           onChange={(e) => {
                             setStoreSettings({
                               ...storeSettings,
@@ -2344,7 +2462,7 @@ const AdminDashboard = () => {
                           rows="3"
                           placeholder="Describe your store for search engines..."
                           className="form-input"
-                          defaultValue={storeSettings.seo?.meta_description || ''}
+                          value={storeSettings.seo?.meta_description || ''}
                           onChange={(e) => {
                             setStoreSettings({
                               ...storeSettings,
@@ -2359,7 +2477,7 @@ const AdminDashboard = () => {
                           type="text"
                           placeholder="ecommerce, online store, products"
                           className="form-input"
-                          defaultValue={storeSettings.seo?.meta_keywords || ''}
+                          value={storeSettings.seo?.meta_keywords || ''}
                           onChange={(e) => {
                             setStoreSettings({
                               ...storeSettings,
