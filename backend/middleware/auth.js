@@ -17,17 +17,31 @@ const authenticate = async (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    // Verify token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Validate token exists and has minimum length
+    if (!token || token.length < 10) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          message: 'Invalid token format',
+          details: 'Token is missing or too short'
+        }
+      });
+    }
 
-    if (error || !user) {
-      console.error('\n========== AUTHENTICATION FAILED ==========');
-      console.error('Request URL:', req.method, req.originalUrl);
-      console.error('Error:', error?.message || 'Token verification failed');
-      console.error('Error code:', error?.status);
-      console.error('Token length:', token?.length);
-      console.error('Token prefix:', token?.substring(0, 20));
-      console.error('===========================================\n');
+    // Verify token with Supabase
+    const { data, error } = await supabase.auth.getUser(token);
+
+    if (error || !data || !data.user) {
+      // Only log detailed errors in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('\n========== AUTHENTICATION FAILED ==========');
+        console.error('Request URL:', req.method, req.originalUrl);
+        console.error('Error:', error?.message || 'Token verification failed');
+        console.error('Error code:', error?.status);
+        console.error('Token length:', token?.length);
+        console.error('Token prefix:', token?.substring(0, 20));
+        console.error('===========================================\n');
+      }
       
       return res.status(401).json({
         success: false,
@@ -39,10 +53,13 @@ const authenticate = async (req, res, next) => {
       });
     }
 
+    const user = data.user;
+
     // Attach user to request object
     req.user = user;
     req.userId = user.id;
     
+    // Continue to next middleware
     next();
   } catch (error) {
     next(error);
