@@ -29,6 +29,8 @@ const Products = () => {
   const [sortOption, setSortOption] = useState('recent');
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [viewMode, setViewMode] = useState('categories'); // 'categories' or 'products'
+  const [totalProductCount, setTotalProductCount] = useState(0); // Total products in store
+  const [categoryProductCount, setCategoryProductCount] = useState(null); // Products in selected category
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -81,6 +83,11 @@ const Products = () => {
       if (result.success && result.data?.sections?.categories) {
         setCategories(result.data.sections.categories);
       }
+      // Also fetch total product count when loading categories
+      const productsResult = await productService.getProductsByStore(storeId, { status: 'all', limit: 1 });
+      if (productsResult.success && productsResult.data.totalCount !== undefined) {
+        setTotalProductCount(productsResult.data.totalCount);
+      }
     } catch (err) {
       console.error('Failed to load categories:', err);
     } finally {
@@ -93,11 +100,20 @@ const Products = () => {
     if (!storeId) return;
     try {
       setLoading(true);
-      // Pass category_id if selected
-      const params = selectedCategoryId ? { category_id: selectedCategoryId } : {};
+      // Pass category_id if selected, and status='all' to get all products
+      const params = selectedCategoryId ? { category_id: selectedCategoryId, status: 'all' } : { status: 'all' };
       const result = await productService.getProductsByStore(storeId, params);
       if (result.success) {
         setProducts(result.data.products);
+        // Update total and category counts from backend response
+        if (result.data.totalCount !== undefined) {
+          setTotalProductCount(result.data.totalCount);
+        }
+        if (result.data.categoryCount !== undefined && result.data.categoryCount !== null) {
+          setCategoryProductCount(result.data.categoryCount);
+        } else {
+          setCategoryProductCount(null);
+        }
       } else {
         setError('Failed to load products');
       }
@@ -219,7 +235,10 @@ const Products = () => {
 
   const productStats = useMemo(() => {
     const stats = {
-      total: products.length,
+      // Use totalProductCount from backend when available, otherwise fallback to products.length
+      total: selectedCategoryId && categoryProductCount !== null 
+        ? categoryProductCount 
+        : (totalProductCount > 0 ? totalProductCount : products.length),
       active: 0,
       draft: 0,
       archived: 0,
@@ -241,7 +260,7 @@ const Products = () => {
     });
 
     return stats;
-  }, [products]);
+  }, [products, totalProductCount, categoryProductCount, selectedCategoryId]);
 
   const displayedProducts = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -352,30 +371,54 @@ const Products = () => {
           </div>
         </div>
         <div className="header-actions">
-          <button
+          {/* Bulk Upload button commented out - available in dashboard instead */}
+          {/* <button
             className="create-product-button"
             onClick={() => navigate(`/stores/${storeSlug}/products/bulk-upload`)}
             style={{ marginRight: 'var(--spacing-md)' }}
           >
             📊 Bulk Upload
-          </button>
-          <button
+          </button> */}
+          {/* Add Product button commented out */}
+          {/* <button
             className="create-product-button"
             onClick={() => navigate(`/stores/${storeSlug}/products/create`)}
           >
             + Add Product
-          </button>
-          <button
+          </button> */}
+          {/* Inventory button commented out */}
+          {/* <button
             className="inventory-button pill-button"
             onClick={() => navigate(`/stores/${storeSlug}/inventory`)}
           >
             Inventory
-          </button>
+          </button> */}
           <button
             className="orders-button pill-button"
             onClick={() => navigate(`/stores/${storeSlug}/orders`)}
           >
             Orders
+          </button>
+          <button
+            className="location-button pill-button"
+            onClick={() => navigate(`/stores/${storeSlug}/location`)}
+            title="View Store Location"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ marginRight: '6px' }}
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Location
           </button>
           <div className="user-info">
             <span>{user?.full_name || user?.email}</span>
@@ -561,7 +604,7 @@ const Products = () => {
                       </div>
                       <div className="category-square-content">
                         <h3>{category.name}</h3>
-                        <p>View Products →</p>
+                        <p>{category.product_count || 0} {category.product_count === 1 ? 'product' : 'products'}</p>
                       </div>
                     </div>
                   ))}
