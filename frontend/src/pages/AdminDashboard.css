@@ -590,6 +590,13 @@
   font-family: var(--font-family-primary, system-ui, sans-serif);
 }
 
+.section-header-actions {
+  display: flex;
+  gap: var(--spacing-md, 12px);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .view-all-button {
   padding: var(--spacing-2, 8px) var(--spacing-4, 16px);
   background: transparent;
@@ -875,7 +882,7 @@
 }
 
 .product-card {
-  background: var(--color-bg-primary, #ffffff);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: var(--radius-lg, 12px);
   overflow: hidden;
   box-shadow: var(--shadow-sm, 0 1px 3px 0 rgba(0, 0, 0, 0.1));
@@ -914,7 +921,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-tertiary, #94a3b8);
+  color: #ffffff;
   font-size: var(--font-size-sm, 0.875rem);
   font-family: var(--font-family-primary, system-ui, sans-serif);
 }
@@ -941,7 +948,7 @@
 
 .product-body h3 {
   margin: 0 0 var(--spacing-2, 8px) 0;
-  color: var(--color-text-primary, #0f172a);
+  color: #ffffff;
   font-size: var(--font-size-base, 1rem);
   font-weight: var(--font-weight-semibold, 600);
   line-height: var(--line-height-normal, 1.5);
@@ -950,18 +957,82 @@
 
 .product-body p {
   margin: 0 0 var(--spacing-3, 12px) 0;
-  color: var(--color-text-secondary, #475569);
+  color: #ffffff;
   font-size: var(--font-size-sm, 0.875rem);
   line-height: var(--line-height-relaxed, 1.625);
   font-family: var(--font-family-primary, system-ui, sans-serif);
 }
 
 .product-price {
-  color: var(--color-primary, #667eea);
+  color: #ffffff;
   font-size: var(--font-size-md, 1.125rem);
   font-weight: var(--font-weight-bold, 700);
   line-height: var(--line-height-normal, 1.5);
   font-family: var(--font-family-primary, system-ui, sans-serif);
+}
+
+.product-price .price {
+  color: #ffffff;
+}
+
+.product-price .compare-price {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.product-meta {
+  color: #ffffff;
+}
+
+.product-meta {
+  margin-top: var(--spacing-3, 12px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2, 8px);
+  align-items: center;
+}
+
+.product-meta .status-badge {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--spacing-1, 4px) var(--spacing-3, 12px);
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: capitalize;
+}
+
+.product-meta .status-badge.status-active {
+  background: rgba(16, 185, 129, 0.3);
+  color: #ffffff;
+}
+
+.product-meta .status-badge.status-draft {
+  background: rgba(245, 158, 11, 0.3);
+  color: #ffffff;
+}
+
+.product-meta .status-badge.status-archived {
+  background: rgba(107, 114, 128, 0.3);
+  color: #ffffff;
+}
+
+.product-meta .inventory {
+  color: #ffffff;
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.product-meta .inventory.stock-out {
+  color: #ffebee;
+  background: rgba(239, 68, 68, 0.3);
+  padding: var(--spacing-1, 4px) var(--spacing-3, 12px);
+  border-radius: var(--radius-sm, 6px);
+}
+
+.product-meta .inventory.stock-low {
+  color: #fff7ed;
+  background: rgba(245, 158, 11, 0.3);
+  padding: var(--spacing-1, 4px) var(--spacing-3, 12px);
+  border-radius: var(--radius-sm, 6px);
 }
   
   /* ============================================
@@ -1348,6 +1419,21 @@
   min-height: 100px;
 }
 
+.map-preview {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.map-preview iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+  display: block;
+}
+
 .form-group .disabled-input {
   background: var(--color-bg-tertiary, #f1f5f9);
   color: var(--color-text-tertiary, #94a3b8);
@@ -1362,6 +1448,21 @@
   font-style: italic;
   line-height: var(--line-height-normal, 1.5);
   font-family: var(--font-family-primary, system-ui, sans-serif);
+}
+
+/* Settings Divider and Description */
+.settings-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 32px 0;
+  border: none;
+}
+
+.settings-description {
+  color: #64748b;
+  font-size: 14px;
+  margin: -8px 0 20px 0;
+  line-height: 1.5;
 }
 
 /* Form Rows */
