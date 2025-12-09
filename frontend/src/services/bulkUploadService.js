@@ -19,7 +19,7 @@ const bulkUploadService = {
   },
 
   // Upload products from Excel
-  uploadProducts: async (file, storeId, useAI = false, generateDescription = false) => {
+  uploadProducts: async (file, storeId, useAI = false, generateDescription = false, onProgress = null) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('storeId', storeId);
@@ -32,8 +32,12 @@ const bulkUploadService = {
         'Content-Type': 'multipart/form-data'
       },
       onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        return percentCompleted;
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          if (onProgress) {
+            onProgress(percentCompleted);
+          }
+        }
       }
     });
 
