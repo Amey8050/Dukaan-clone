@@ -760,55 +760,55 @@
   }
 }
 
-.dark-mode .notifications-container {
+[data-theme="dark"] .notifications-container {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
-.dark-mode .notifications-header h1 {
+[data-theme="dark"] .notifications-header h1 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .notification-card,
-.dark-mode .notifications-empty,
-.dark-mode .loading {
+[data-theme="dark"] .notification-card,
+[data-theme="dark"] .notifications-empty,
+[data-theme="dark"] .loading {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .notification-card-title,
-.dark-mode .notifications-empty h2 {
+[data-theme="dark"] .notification-card-title,
+[data-theme="dark"] .notifications-empty h2 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .notification-card-message,
-.dark-mode .notifications-empty p {
+[data-theme="dark"] .notification-card-message,
+[data-theme="dark"] .notifications-empty p {
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .notification-card.unread {
+[data-theme="dark"] .notification-card.unread {
   background: rgba(102, 126, 234, 0.15);
   border-left-color: var(--color-primary);
 }
 
-.dark-mode .notification-icon-large {
+[data-theme="dark"] .notification-icon-large {
   background: var(--color-secondary-700);
 }
 
-.dark-mode .notification-card.unread .notification-icon-large {
+[data-theme="dark"] .notification-card.unread .notification-icon-large {
   background: rgba(102, 126, 234, 0.2);
 }
 
-.dark-mode .notification-link-button {
+[data-theme="dark"] .notification-link-button {
   border-color: var(--color-primary);
 }
 
-.dark-mode .notifications-filters button {
+[data-theme="dark"] .notifications-filters button {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .notifications-filters button:hover {
+[data-theme="dark"] .notifications-filters button:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
@@ -858,3 +858,4 @@
     break-inside: avoid;
   }
 }
+
