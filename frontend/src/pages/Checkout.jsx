@@ -12,6 +12,7 @@ const Checkout = () => {
   const { storeId: storeSlug } = useParams();
   const {
     storeId,
+    store: resolvedStore,
     loading: storeLookupLoading,
     error: storeLookupError
   } = useStoreBySlug(storeSlug);
@@ -88,6 +89,31 @@ const Checkout = () => {
       }));
     }
   }, [cart]);
+
+  // Auto-calculate tax based on store tax settings
+  useEffect(() => {
+    if (cart && cart.subtotal !== undefined && resolvedStore?.settings?.tax?.tax_rate) {
+      const taxRate = parseFloat(resolvedStore.settings.tax.tax_rate) || 0;
+      if (taxRate > 0) {
+        const calculatedTax = (cart.subtotal * taxRate) / 100;
+        setFormData((prev) => ({
+          ...prev,
+          tax: calculatedTax,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          tax: 0,
+        }));
+      }
+    } else if (cart && cart.subtotal !== undefined) {
+      // No tax rate set, set tax to 0
+      setFormData((prev) => ({
+        ...prev,
+        tax: 0,
+      }));
+    }
+  }, [cart, resolvedStore?.settings?.tax?.tax_rate]);
 
   const handleShippingChange = (e) => {
     const { name, value } = e.target;
