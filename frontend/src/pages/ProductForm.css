@@ -1014,42 +1014,42 @@ form {
   }
 }
 
-.dark-mode .product-form-container {
+[data-theme="dark"] .product-form-container {
   background: linear-gradient(135deg, var(--color-secondary-800) 0%, var(--color-secondary-900) 100%);
 }
 
-.dark-mode .product-form-card,
-.dark-mode .form-header,
-.dark-mode .image-analysis-content {
+[data-theme="dark"] .product-form-card,
+[data-theme="dark"] .form-header,
+[data-theme="dark"] .image-analysis-content {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .form-section h2,
-.dark-mode .image-analysis-header h3,
-.dark-mode .analysis-text h4 {
+[data-theme="dark"] .form-section h2,
+[data-theme="dark"] .image-analysis-header h3,
+[data-theme="dark"] .analysis-text h4 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .form-group input,
-.dark-mode .form-group textarea,
-.dark-mode .form-group select {
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
   background: var(--color-secondary-700);
   border-color: var(--color-secondary-600);
   color: var(--color-text-inverse);
 }
 
-.dark-mode .image-preview-item {
+[data-theme="dark"] .image-preview-item {
   background: var(--color-secondary-700);
   border-color: var(--color-secondary-600);
 }
 
-.dark-mode .form-actions {
+[data-theme="dark"] .form-actions {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .error-message {
+[data-theme="dark"] .error-message {
   background: linear-gradient(135deg, var(--color-danger-900) 0%, var(--color-danger-800) 100%);
   color: var(--color-danger-100);
 }
@@ -1114,3 +1114,4 @@ form {
     color: black;
   }
 }
+
