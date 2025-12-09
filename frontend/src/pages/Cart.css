@@ -1134,70 +1134,70 @@
   }
 }
 
-.dark-mode .cart-container {
+[data-theme="dark"] .cart-container {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
-.dark-mode .cart-header {
+[data-theme="dark"] .cart-header {
   background: linear-gradient(135deg, #4c1d95 0%, #312e81 100%);
 }
 
-.dark-mode .loading,
-.dark-mode .empty-cart,
-.dark-mode .cart-items,
-.dark-mode .summary-card {
+[data-theme="dark"] .loading,
+[data-theme="dark"] .empty-cart,
+[data-theme="dark"] .cart-items,
+[data-theme="dark"] .summary-card {
   background: var(--color-secondary-800);
   color: var(--color-text-inverse);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .empty-cart h2,
-.dark-mode .cart-items-header h2,
-.dark-mode .summary-card h2,
-.dark-mode .item-details h3,
-.dark-mode .summary-value,
-.dark-mode .total-row .summary-label {
+[data-theme="dark"] .empty-cart h2,
+[data-theme="dark"] .cart-items-header h2,
+[data-theme="dark"] .summary-card h2,
+[data-theme="dark"] .item-details h3,
+[data-theme="dark"] .summary-value,
+[data-theme="dark"] .total-row .summary-label {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .empty-cart p,
-.dark-mode .item-price,
-.dark-mode .summary-label {
+[data-theme="dark"] .empty-cart p,
+[data-theme="dark"] .item-price,
+[data-theme="dark"] .summary-label {
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .cart-item {
+[data-theme="dark"] .cart-item {
   border-bottom-color: var(--color-secondary-700);
 }
 
-.dark-mode .cart-item:hover {
+[data-theme="dark"] .cart-item:hover {
   background: rgba(102, 126, 234, 0.15);
 }
 
-.dark-mode .quantity-controls {
+[data-theme="dark"] .quantity-controls {
   background: var(--color-secondary-700);
 }
 
-.dark-mode .quantity-btn,
-.dark-mode .quantity-input {
+[data-theme="dark"] .quantity-btn,
+[data-theme="dark"] .quantity-input {
   background: var(--color-secondary-800);
   color: var(--color-text-inverse);
 }
 
-.dark-mode .quantity-input:focus {
+[data-theme="dark"] .quantity-input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
-.dark-mode .summary-divider {
+[data-theme="dark"] .summary-divider {
   background: linear-gradient(90deg, transparent, var(--color-secondary-600), transparent);
 }
 
-.dark-mode .total-row {
+[data-theme="dark"] .total-row {
   border-top-color: var(--color-secondary-700);
 }
 
-.dark-mode .summary-note {
+[data-theme="dark"] .summary-note {
   background: var(--color-secondary-700);
   color: var(--color-text-tertiary);
 }
@@ -1264,3 +1264,4 @@
     justify-content: flex-start;
   }
 }
+
