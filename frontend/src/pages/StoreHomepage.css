@@ -983,6 +983,121 @@
 }
 
 /* ============================================
+   FIND US SECTION - Store Location Map
+   ============================================ */
+.find-us-section {
+  position: relative;
+}
+
+.store-address-display {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-tertiary) 100%);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--spacing-2xl);
+  border: 2px solid var(--color-border-light);
+}
+
+.store-address-display svg {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+.store-address-display p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  font-weight: var(--font-weight-medium);
+}
+
+.map-container {
+  width: 100%;
+  margin-bottom: var(--spacing-2xl);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--color-border-light);
+}
+
+.map-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.open-maps-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--gradient-primary);
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-primary);
+  border: none;
+  cursor: pointer;
+}
+
+.open-maps-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary-hover);
+  color: var(--color-text-inverse);
+}
+
+.open-maps-button:active {
+  transform: translateY(0);
+}
+
+.open-maps-button.secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.open-maps-button.secondary:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-medium);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text-primary);
+}
+
+.open-maps-button svg {
+  flex-shrink: 0;
+}
+
+/* Responsive styles for Find Us section */
+@media (max-width: 768px) {
+  .store-address-display {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+  }
+
+  .store-address-display svg {
+    margin-top: 0;
+  }
+
+  .map-actions {
+    flex-direction: column;
+  }
+
+  .open-maps-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================
    DARK MODE SUPPORT
    ============================================ */
 @media (prefers-color-scheme: dark) {
@@ -1031,46 +1146,46 @@
   }
 }
 
-.dark-mode .homepage-container {
+[data-theme="dark"] .homepage-container {
   background: linear-gradient(135deg, var(--color-secondary-800) 0%, var(--color-secondary-900) 100%);
 }
 
-.dark-mode .store-header,
-.dark-mode .homepage-section,
-.dark-mode .product-card,
-.dark-mode .category-card,
-.dark-mode .search-form {
+[data-theme="dark"] .store-header,
+[data-theme="dark"] .homepage-section,
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .search-form {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .store-info h1,
-.dark-mode .section-header h2,
-.dark-mode .product-name,
-.dark-mode .category-card h3 {
+[data-theme="dark"] .store-info h1,
+[data-theme="dark"] .section-header h2,
+[data-theme="dark"] .product-name,
+[data-theme="dark"] .category-card h3 {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .store-description,
-.dark-mode .product-description,
-.dark-mode .view-all-link {
+[data-theme="dark"] .store-description,
+[data-theme="dark"] .product-description,
+[data-theme="dark"] .view-all-link {
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .homepage-nav {
+[data-theme="dark"] .homepage-nav {
   background: var(--color-secondary-800);
   border-color: var(--color-secondary-700);
 }
 
-.dark-mode .homepage-nav a {
+[data-theme="dark"] .homepage-nav a {
   color: var(--color-text-tertiary);
 }
 
-.dark-mode .homepage-nav a:hover {
+[data-theme="dark"] .homepage-nav a:hover {
   color: var(--color-text-inverse);
 }
 
-.dark-mode .homepage-footer {
+[data-theme="dark"] .homepage-footer {
   background: linear-gradient(135deg, var(--color-secondary-950) 0%, var(--color-secondary-900) 100%);
   border-color: var(--color-secondary-800);
 }
@@ -1131,3 +1246,4 @@
     -webkit-text-fill-color: black;
   }
 }
+
